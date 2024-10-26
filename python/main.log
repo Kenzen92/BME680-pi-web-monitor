@@ -1,0 +1,13 @@
+Running main
+BME680 sensor initialized
+Connection & cursor made: <cursor object at 0x7f9be45c70; closed: 0> <connection object at 0x7f9ce57b80; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
+Traceback (most recent call last):
+  File "/home/james/programming/sensor/python/main.py", line 71, in <module>
+    main()
+  File "/home/james/programming/sensor/python/main.py", line 64, in main
+    cursor.execute('''
+psycopg2.errors.AdminShutdown: terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
