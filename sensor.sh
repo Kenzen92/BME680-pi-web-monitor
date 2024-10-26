@@ -5,7 +5,7 @@ docker-compose down
 
 pip install -r python/requirements.txt
 
-# docker-compose build
+docker-compose build
 
 # Start containers in detached mode
 docker-compose up -d

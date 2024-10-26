@@ -40,7 +40,6 @@ func main() {
 	}
 
 	fmt.Println("Successfully connected to the database")
-	// Your application logic here
 
 	// HTTP handler to retrieve and serve readings as JSON
 	http.HandleFunc("/readings", func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +79,14 @@ func main() {
 		pastTime := currentTime.AddDate(0, 0, -number_of_days)
 
 		// Query the database using a parameterized query
-		rows, err := db.Query("SELECT id, temperature, humidity, pressure, timestamp FROM environmental_readings WHERE timestamp > $1", pastTime)
+		rows, err := db.Query(`SELECT 
+								id, 
+								ROUND(temperature::numeric, 2) AS rounded_temperature, 
+								ROUND(humidity::numeric, 2) AS rounded_humidity, 
+								ROUND(pressure::numeric, 2) AS rounded_pressure, 
+								timestamp 
+								FROM environmental_readings 
+								WHERE timestamp > $1`, pastTime)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to query database", http.StatusInternalServerError)
