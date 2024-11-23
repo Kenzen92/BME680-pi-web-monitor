@@ -20,6 +20,7 @@ services:
     container_name: go_app
     volumes:
       - ./go:/app
+      - ./graph/dist:/app/dist
     environment:
       POSTGRES_URL: postgres://postgres:postgres@postgres-db:5432/sensor_db?sslmode=disable
     ports:

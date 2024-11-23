@@ -24,7 +24,7 @@ type Reading struct {
 }
 
 func main() {
-	staticDir := "./graph/dist"
+	staticDir := "/app/dist"
 
 	// File server to serve static files
     fs := http.FileServer(http.Dir(staticDir))
