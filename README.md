@@ -1,6 +1,6 @@
 # BME680 Pi Sensor Suite
 
-A Raspberry Pi-based project for reading values from the BME680 sensor, storing them in a PostgreSQL database, and serving them through a Go-based server with a React frontend for real-time monitoring and analysis.
+A Raspberry Pi-based project for reading values from the BME680 sensor, storing them in a PostgreSQL database, and serving them through a Go-based server with a React frontend for monitoring and analysis over the historical values.
 
 ---
 
@@ -32,15 +32,18 @@ Make sure the following are installed on your Raspberry Pi before proceeding:
   ./sensor.sh
   ```
 3. **Access the Application**:
-  Once the setup completes, access the web dashboard via the Raspberry Pi's IP address on port 3000.
-  Example: http://<raspberry-pi-ip>:3000
+  Once the setup completes, access the web dashboard via the Raspberry Pi's IP address on port 5000.
+  React frontend: http://<raspberry-pi-ip>:5000
+  Raw Data: frontend: http://<raspberry-pi-ip>:5000/readings?days=7 # Change the number of days to limit or extend the scope. The default is 7.
 
-### Usage
+---
+
+## Usage
 The system runs the following components:
 
-Sensor Reader: Continuously reads data from the BME680 sensor and stores it in the database.
-Go Server: Handles API requests to fetch sensor readings.
-React Frontend: A web-based interface for visualizing data.
+Sensor Reader: Reads data at five minute intervals from the BME680 sensor and stores it in the database.
+Go Server: Handles API requests to fetch sensor readings. Serves either raw data, or the React frontend.
+React Frontend: A web-based interface for visualizing data, containing beautiful graphs with a responsive layout.
 
 ### Contributing
 This project is open-source and welcomes contributions. To suggest changes or improvements:
