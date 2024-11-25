@@ -21,5 +21,8 @@
 go.work
 go.work.sum
 
+# Python virtual environment
+venv/
+
 # env file
 .env

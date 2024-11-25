@@ -16,7 +16,7 @@ export default function Graph() {
     const fetchGraphData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/readings?days=${chosenDays}`
+          `http://raspberrypi:5000/readings?days=${chosenDays}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -25,9 +25,9 @@ export default function Graph() {
         const formattedData = data.map((item) => {
           const date = new Date(item.timestamp);
           return {
-            temperature: item.temperature?.toFixed(1),
-            pressure: item.pressure?.toFixed(1),
-            humidity: item.humidity?.toFixed(1),
+            temperature: item.temperature?.toFixed(2),
+            pressure: item.pressure,
+            humidity: item.humidity?.toFixed(2),
             timestamp:
               chosenDays === 1
                 ? date.toLocaleTimeString([], {
