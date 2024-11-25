@@ -60,28 +60,28 @@ export default function Graph() {
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%", color: '#fff' }}
+          sx={{ flex: 1, width: "100%" }}
           onClick={() => setChosenDays(1)}
         >
           1 Day
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%", color: '#fff' }}
+          sx={{ flex: 1, width: "100%" }}
           onClick={() => setChosenDays(7)}
         >
           1 Week
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%", color: '#fff' }}
+          sx={{ flex: 1, width: "100%" }}
           onClick={() => setChosenDays(30)}
         >
           1 Month
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%", color: '#fff' }}
+          sx={{ flex: 1, width: "100%" }}
           onClick={() => setChosenDays(90)}
         >
           3 Months
@@ -91,9 +91,9 @@ export default function Graph() {
       {isSmallScreen ? (
         <Box>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
-            <Tab label="Temperature" />
-            <Tab label="Humidity" />
-            <Tab label="Pressure" />
+            <Tab label="Temperature" sx={{ color: '#fff' }}/>
+            <Tab label="Humidity" sx={{ color: '#fff' }}/>
+            <Tab label="Pressure" sx={{ color: '#fff' }}/>
           </Tabs>
           {selectedTab === 0 && <TemperatureGraph data={graphData} />}
           {selectedTab === 1 && <HumidityGraph data={graphData} />}

@@ -1,3 +1,3 @@
 Running main
 BME680 sensor initialized
-Connection & cursor made: <cursor object at 0x7fa6fed6d0; closed: 0> <connection object at 0x7fa70827c0; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
+Connection & cursor made: <cursor object at 0x7f87d256d0; closed: 0> <connection object at 0x7f87dba7c0; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
