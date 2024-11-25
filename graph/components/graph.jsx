@@ -60,28 +60,28 @@ export default function Graph() {
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%" }}
+          sx={{ flex: 1, width: "100%", color: '#fff' }}
           onClick={() => setChosenDays(1)}
         >
           1 Day
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%" }}
+          sx={{ flex: 1, width: "100%", color: '#fff' }}
           onClick={() => setChosenDays(7)}
         >
           1 Week
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%" }}
+          sx={{ flex: 1, width: "100%", color: '#fff' }}
           onClick={() => setChosenDays(30)}
         >
           1 Month
         </Button>
         <Button
           variant="outlined"
-          sx={{ flex: 1, width: "100%" }}
+          sx={{ flex: 1, width: "100%", color: '#fff' }}
           onClick={() => setChosenDays(90)}
         >
           3 Months
