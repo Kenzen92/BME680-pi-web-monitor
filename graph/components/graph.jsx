@@ -5,6 +5,7 @@ import {
   HumidityGraph,
   PressureGraph,
 } from "./measurement_graph.jsx";
+import RealTime from "./real_time.jsx";
 
 export default function Graph() {
   const [graphData, setGraphData] = useState([]);
@@ -56,6 +57,8 @@ export default function Graph() {
   return (
     <div style={{ width: "90vw", height: "100vh" }}>
       <h2>Environmental Readings</h2>
+
+      <RealTime />
 
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
         <Button

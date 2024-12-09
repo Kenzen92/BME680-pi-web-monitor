@@ -13,6 +13,14 @@ services:
     ports:
       - "5432:5432"
     restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis_instance
+    ports:
+      - "6379:6379"
+    restart: always
+
   go-app:
     build:
       context: ./go
@@ -23,6 +31,7 @@ services:
       - ./graph/dist:/app/dist
     environment:
       POSTGRES_URL: postgres://postgres:postgres@postgres-db:5432/sensor_db?sslmode=disable
+      REDIS_URL: redis:6379
     ports:
       - "5000:8080"
     depends_on:

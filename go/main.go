@@ -11,6 +11,8 @@ import (
 	"time"
 	"path/filepath"
     "strings"
+	"github.com/gorilla/websocket"
+	"github.com/go-redis/redis"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
@@ -21,6 +23,54 @@ type Reading struct {
 	Humidity    *float64 `json:"humidity,omitempty"`
 	Pressure    *float64 `json:"pressure,omitempty"`
 	Timestamp   string   `json:"timestamp"`
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
+
+var clients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan string)
+
+func handleConnections(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handling connection")
+
+	// Attempting to upgrade the connection
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Println("Failed to upgrade connection: ", err)
+		return
+	}
+	fmt.Println("Connection upgraded to WebSocket")
+
+	defer func() {
+		fmt.Println("Closing WebSocket connection")
+		ws.Close()
+		delete(clients, ws)
+	}()
+	
+	// Adding client to the clients map
+	clients[ws] = true
+	fmt.Println("Client added. Total clients: %d\n", len(clients))
+
+	for {
+		select {
+		case message := <-broadcast:
+			fmt.Println("Broadcast received: " , message) // Add this fmt
+			for client := range clients {
+				fmt.Println("Sending message to client: ", client.RemoteAddr())
+				err := client.WriteMessage(websocket.TextMessage, []byte(message))
+				if err != nil {
+					fmt.Println("Error sending message to client: ", err)
+					client.Close()
+					delete(clients, client)
+					fmt.Println("Client removed. Total clients: %d\n", len(clients))
+				}
+			}
+		default:
+			time.Sleep(100 * time.Millisecond) // Prevent blocking
+		}
+	}
 }
 
 func main() {
@@ -48,6 +98,28 @@ func main() {
 	}
 
 	fmt.Println("Successfully connected to the database")
+	redisURL := os.Getenv("REDIS_URL")
+	client := redis.NewClient(&redis.Options{
+		Addr: redisURL,
+	})
+
+	fmt.Println("Successfully connected to the redis client")
+	
+
+	pubsub := client.Subscribe("sensor-data")
+	_, err = pubsub.Receive()
+	if err != nil {
+		log.Fatalf("Failed to subscribe to channel: %v", err)
+	}
+	
+	go func() {
+		for msg := range pubsub.Channel() {
+			fmt.Println("Received message from Redis: %s\n", msg.Payload) // Add this log
+			broadcast <- msg.Payload
+		}
+	}()
+
+	http.HandleFunc("/ws", handleConnections)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         // Check if the file exists in the directory

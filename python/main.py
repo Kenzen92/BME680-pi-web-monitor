@@ -5,6 +5,7 @@ import busio
 from adafruit_bme680 import Adafruit_BME680_I2C
 import psycopg2
 import statistics
+import redis
 
 def main():
     print("Running main")
@@ -18,6 +19,17 @@ def main():
     # Create sensor object
     bme680 = Adafruit_BME680_I2C(i2c)
     print("BME680 sensor initialized")
+
+    # Test Redis connection
+    try:
+        r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+        # Check if Redis server is reachable
+        r.ping()
+        print("Connected to Redis successfully")
+    except redis.ConnectionError as e:
+        print(f"Failed to connect to Redis: {e}")
+        print("Make sure the Redis server is running and accessible.")
+        return  # Exit the script if Redis is not available
 
     # Connect to the PostgreSQL database
     connection = psycopg2.connect(
@@ -50,9 +62,18 @@ def main():
         humidity_measurements = []
         pressure_measurements = []
         while i < 60:
+            # Add recordings to the array for historical logs
             temp_measurements.append(bme680.temperature)
             humidity_measurements.append(bme680.humidity)
             pressure_measurements.append(bme680.pressure)
+            
+            # Add data to the redis queue for instant monitoring
+            data = {
+            "temperature": bme680.temperature,
+            "humidity": bme680.humidity,
+            "pressure": bme680.pressure,
+            }
+            r.publish("sensor-data", str(data))
             time.sleep(5)
             i += 1
 

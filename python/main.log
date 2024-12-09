@@ -1,3 +1,4 @@
 Running main
 BME680 sensor initialized
-Connection & cursor made: <cursor object at 0x7f87d256d0; closed: 0> <connection object at 0x7f87dba7c0; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
+Connected to Redis successfully
+Connection & cursor made: <cursor object at 0x7fba84bd60; closed: 0> <connection object at 0x7fbad46400; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
