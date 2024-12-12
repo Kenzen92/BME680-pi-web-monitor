@@ -6,6 +6,7 @@ from adafruit_bme680 import Adafruit_BME680_I2C
 import psycopg2
 import statistics
 import redis
+import json
 
 def main():
     print("Running main")
@@ -73,7 +74,7 @@ def main():
             "humidity": bme680.humidity,
             "pressure": bme680.pressure,
             }
-            r.publish("sensor-data", str(data))
+            r.publish("sensor-data", json.dumps(data))
             time.sleep(5)
             i += 1
 
