@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import {
+  Tabs,
+  Tab,
+  useMediaQuery,
+  Box,
+  Button,
+  Typography,
+} from "@mui/material";
 
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://raspberrypi:5000/ws');
+    const socket = new WebSocket("ws://raspberrypi:5000/ws");
     console.log(socket);
 
     socket.onmessage = (event) => {
-      console.log(event);
-      setSensorData(event.data);
+      const parsedData = JSON.parse(event.data);
+      setSensorData(parsedData);
     };
 
     socket.onerror = (error) => {
@@ -20,18 +28,29 @@ const RealTime = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Real-Time Sensor Data</h1>
+    <Box m={5}>
       {sensorData ? (
-        <div>
-          <p>Temperature: {sensorData.temperature} °C</p>
-          <p>Humidity: {sensorData.humidity} %</p>
-          <p>Pressure: {sensorData.pressure} hPa</p>
-        </div>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 10,
+          }}
+        >
+          <Typography>
+            Temperature: {sensorData.temperature.toFixed(2)} °C
+          </Typography>
+          <Typography>Humidity: {sensorData.humidity.toFixed(1)} %</Typography>
+          <Typography>
+            Pressure: {sensorData.pressure.toFixed(1)} hPa
+          </Typography>
+        </Box>
       ) : (
-        <p>Loading...</p>
+        <Typography>Loading...</Typography>
       )}
-    </div>
+    </Box>
   );
 };
 
