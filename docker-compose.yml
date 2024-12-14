@@ -36,6 +36,7 @@ services:
       - "5000:8080"
     depends_on:
       - postgres-db
+      - redis_instance
     restart: always # Optional: Restart the container if it stops
 
 volumes:

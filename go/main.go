@@ -7,12 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
 	"path/filepath"
-    "strings"
-	"github.com/gorilla/websocket"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/go-redis/redis"
+	"github.com/gorilla/websocket"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
@@ -48,7 +49,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		ws.Close()
 		delete(clients, ws)
 	}()
-	
+
 	// Adding client to the clients map
 	clients[ws] = true
 	fmt.Println("Client added. Total clients: %d\n", len(clients))
@@ -56,7 +57,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case message := <-broadcast:
-			fmt.Println("Broadcast received: " , message) // Add this fmt
+			fmt.Println("Broadcast received: ", message) // Add this fmt
 			for client := range clients {
 				fmt.Println("Sending message to client: ", client.RemoteAddr())
 				err := client.WriteMessage(websocket.TextMessage, []byte(message))
@@ -64,7 +65,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 					fmt.Println("Error sending message to client: ", err)
 					client.Close()
 					delete(clients, client)
-					fmt.Println("Client removed. Total clients: %d\n", len(clients))
+					fmt.Println("Client removed. Total clients: ", len(clients))
 				}
 			}
 		default:
@@ -77,7 +78,7 @@ func main() {
 	staticDir := "/app/dist"
 
 	// File server to serve static files
-    fs := http.FileServer(http.Dir(staticDir))
+	fs := http.FileServer(http.Dir(staticDir))
 
 	// Retrieve the connection string from the environment variable
 	connStr := os.Getenv("POSTGRES_URL")
@@ -104,17 +105,16 @@ func main() {
 	})
 
 	fmt.Println("Successfully connected to the redis client")
-	
 
 	pubsub := client.Subscribe("sensor-data")
 	_, err = pubsub.Receive()
 	if err != nil {
 		log.Fatalf("Failed to subscribe to channel: %v", err)
 	}
-	
+
 	go func() {
 		for msg := range pubsub.Channel() {
-			fmt.Println("Received message from Redis: %s\n", msg.Payload) // Add this log
+			fmt.Println("Received message from Redis: ", msg.Payload)
 			broadcast <- msg.Payload
 		}
 	}()
@@ -122,20 +122,20 @@ func main() {
 	http.HandleFunc("/ws", handleConnections)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        // Check if the file exists in the directory
-        path := filepath.Join(staticDir, r.URL.Path)
-        if strings.HasSuffix(r.URL.Path, "/") {
-            path = filepath.Join(path, "index.html")
-        }
+		// Check if the file exists in the directory
+		path := filepath.Join(staticDir, r.URL.Path)
+		if strings.HasSuffix(r.URL.Path, "/") {
+			path = filepath.Join(path, "index.html")
+		}
 
-        if _, err := filepath.Glob(path); err != nil {
-            // If file doesn't exist, serve index.html for SPA routing
-            http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
-        } else {
-            // Serve the requested file
-            fs.ServeHTTP(w, r)
-        }
-    })
+		if _, err := filepath.Glob(path); err != nil {
+			// If file doesn't exist, serve index.html for SPA routing
+			http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
+		} else {
+			// Serve the requested file
+			fs.ServeHTTP(w, r)
+		}
+	})
 
 	// HTTP handler to retrieve and serve readings as JSON
 	http.HandleFunc("/readings", func(w http.ResponseWriter, r *http.Request) {
