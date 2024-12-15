@@ -20,6 +20,9 @@ def main():
     # Create sensor object
     bme680 = Adafruit_BME680_I2C(i2c)
     print("BME680 sensor initialized")
+    print(f"Temperature: {bme680.temperature:.2f} C")
+    print(f"Humidity: {bme680.humidity:.2f} %")
+    print(f"Pressure: {bme680.pressure:.2f} hPa")
 
     # Test Redis connection
     try:
@@ -37,7 +40,7 @@ def main():
         dbname='sensor_db',
         user='postgres',
         password='postgres',
-         host='localhost',
+        host='localhost',
         port='5432'
     )
     cursor = connection.cursor()

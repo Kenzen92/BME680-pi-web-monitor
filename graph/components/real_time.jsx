@@ -35,19 +35,14 @@ const RealTime = () => {
       {sensorData ? (
         <Box
           sx={{
-            width: "100%",
             display: "flex",
             flexDirection: "column",
             flexWrap: "wrap",
             justifyContent: "center",
             borderRadius: 2,
-            padding: 1,
+            padding: 3,
             boxShadow:
-              "0px 4px 6px rgba(0, 0, 0, 0.6), 0px 1px 3px rgba(0, 0, 0, 0.4)",
-            backgroundColor: flash
-              ? "rgba(255, 255, 255, 0.5)"
-              : "rgba(30, 30, 30, 1)",
-            transition: "background-color 0.3s ease-in-out",
+              "0px 4px 6px rgba(0, 0, 0, 0.6), 0px 1px 3px rgba(0, 0, 0, 0.4)"
           }}
         >
           {" "}
@@ -66,19 +61,34 @@ const RealTime = () => {
           >
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography>Temperature</Typography>
-              <Typography>
+              <Typography  sx={{  
+                color: flash
+              ? "rgb(255, 255, 255)"
+              : "rgba(255, 255, 255, 0.7)",
+            transition: "background-color 0.3s ease-in-out" 
+            }}>
                 {sensorData.temperature.toFixed(1) + "°" + "C"}
               </Typography>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography>Humidity</Typography>
-              <Typography>{sensorData.humidity.toFixed(1) + "%"}</Typography>
+              <Typography  sx={{  
+                color: flash
+              ? "rgb(255, 255, 255)"
+              : "rgba(255, 255, 255, 0.7)",
+            transition: "background-color 0.3s ease-in-out" 
+            }}>{sensorData.humidity.toFixed(1) + "%"}</Typography>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography>Air Pressure</Typography>
-              <Typography>{sensorData.pressure.toFixed(1) + "hPa"}</Typography>
+              <Typography  sx={{  
+                color: flash
+              ? "rgb(255, 255, 255)"
+              : "rgba(255, 255, 255, 0.7)",
+            transition: "background-color 0.3s ease-in-out" 
+            }}>{sensorData.pressure.toFixed(1) + "hPa"}</Typography>
             </Box>
           </Box>
         </Box>

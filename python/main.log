@@ -1,4 +1,7 @@
 Running main
 BME680 sensor initialized
+Temperature: 15.70 C
+Humidity: 59.20 %
+Pressure: 1024.33 hPa
 Connected to Redis successfully
-Connection & cursor made: <cursor object at 0x7f9bcb9d60; closed: 0> <connection object at 0x7f9c1b4400; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
+Connection & cursor made: <cursor object at 0x7f8d100c70; closed: 0> <connection object at 0x7f8d6b1400; dsn: 'user=postgres password=xxx dbname=sensor_db host=localhost port=5432', closed: 0>
