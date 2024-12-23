@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Tabs, Tab, useMediaQuery, Box, Button } from "@mui/material";
+import {
+  Tabs,
+  Tab,
+  useMediaQuery,
+  Box,
+  Button,
+  Container,
+} from "@mui/material";
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -55,7 +62,7 @@ export default function Graph() {
   };
 
   return (
-    <div style={{ width: "90vw", height: "100vh" }}>
+    <Box sx={{ width: "100vw" }}>
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -94,9 +101,9 @@ export default function Graph() {
       {isSmallScreen ? (
         <Box>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
-            <Tab label="Temperature" sx={{ color: '#fff' }}/>
-            <Tab label="Humidity" sx={{ color: '#fff' }}/>
-            <Tab label="Pressure" sx={{ color: '#fff' }}/>
+            <Tab label="Temperature" sx={{ color: "#fff" }} />
+            <Tab label="Humidity" sx={{ color: "#fff" }} />
+            <Tab label="Pressure" sx={{ color: "#fff" }} />
           </Tabs>
           {selectedTab === 0 && <TemperatureGraph data={graphData} />}
           {selectedTab === 1 && <HumidityGraph data={graphData} />}
@@ -109,6 +116,6 @@ export default function Graph() {
           <PressureGraph data={graphData} />
         </div>
       )}
-    </div>
+    </Box>
   );
 }
