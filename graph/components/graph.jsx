@@ -18,6 +18,7 @@ export default function Graph() {
   const [graphData, setGraphData] = useState([]);
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [offset, setOffset] = useState(1);
   const isSmallScreen = useMediaQuery("(max-width: 900px)");
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
@@ -25,7 +26,7 @@ export default function Graph() {
     const fetchGraphData = async () => {
       try {
         const response = await fetch(
-          `http://${pi_ip}:5000/readings?days=${chosenDays}`
+          `http://${pi_ip}:5000/readings?days=${chosenDays}&offset=${offset}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -56,14 +57,21 @@ export default function Graph() {
     };
 
     fetchGraphData();
-  }, [chosenDays]);
+  }, [chosenDays, offset]);
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
 
   return (
-    <Box sx={{ padding: "2em", width: "95vw" }}>
+    <Box
+      sx={{
+        paddingLeft: "1em",
+        paddingRight: "1em",
+        width: "95vw",
+        height: "100vh",
+      }}
+    >
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -81,21 +89,30 @@ export default function Graph() {
         <Button
           variant="outlined"
           sx={{ flex: 1, width: "100%" }}
-          onClick={() => setChosenDays(1)}
+          onClick={() => {
+            setChosenDays(1);
+            setOffset(1);
+          }}
         >
           1 Day
         </Button>
         <Button
           variant="outlined"
           sx={{ flex: 1, width: "100%" }}
-          onClick={() => setChosenDays(7)}
+          onClick={() => {
+            setChosenDays(7);
+            setOffset(1);
+          }}
         >
           1 Week
         </Button>
         <Button
           variant="outlined"
           sx={{ flex: 1, width: "100%" }}
-          onClick={() => setChosenDays(30)}
+          onClick={() => {
+            setChosenDays(30);
+            setOffset(1);
+          }}
         >
           1 Month
         </Button>
@@ -109,7 +126,7 @@ export default function Graph() {
       </Box>
 
       {isSmallScreen ? (
-        <Box>
+        <Box sx={{ overflowY: "auto" }}>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
             <Tab label="Temperature" sx={{ color: "#fff" }} />
             <Tab label="Humidity" sx={{ color: "#fff" }} />
@@ -120,11 +137,39 @@ export default function Graph() {
           {selectedTab === 2 && <PressureGraph data={graphData} />}
         </Box>
       ) : (
-        <div>
-          <TemperatureGraph data={graphData} />
-          <HumidityGraph data={graphData} />
-          <PressureGraph data={graphData} />
-        </div>
+        <Box>
+          <Box
+            sx={{
+              maxWidth: "40em",
+              marginLeft: "auto",
+              marginRight: "auto",
+              display: "flex",
+              gap: "3em",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              variant="outlined"
+              sx={{ minWidth: "8em" }}
+              onClick={() => setOffset(offset + 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outlined"
+              sx={{ minWidth: "8em" }}
+              onClick={() => setOffset(offset - 1)}
+              disabled={offset == 1}
+            >
+              Next
+            </Button>
+          </Box>
+          <Box sx={{ overflowY: "auto" }}>
+            <TemperatureGraph data={graphData} />
+            <HumidityGraph data={graphData} />
+            <PressureGraph data={graphData} />
+          </Box>
+        </Box>
       )}
     </Box>
   );
