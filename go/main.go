@@ -52,7 +52,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Adding client to the clients map
 	clients[ws] = true
-	fmt.Println("Client added. Total clients: %d\n", len(clients))
+	fmt.Println("Client added. Total clients: ", len(clients))
 
 	for {
 		select {

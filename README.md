@@ -67,6 +67,6 @@ You are free to use, modify, and distribute the code as you wish. Contributions 
 
 ### Support
 
-For issues or questions, please open an issue in the repository, or reach out via email at <your-email>.
+For issues or questions, please open an issue in the repository.
 
 Thank you for using the BME680 Pi Sensor Suite! 🎉
