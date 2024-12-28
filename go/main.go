@@ -188,6 +188,8 @@ func main() {
 			// set the endtime to one unit beyond the start time
 			endTime = currentTime.AddDate(0, 0, -endDay).Truncate(time.Hour) // Default endtime to current time, this is used if there's no offset
 
+		} else {
+			startTime = currentTime.AddDate(0, 0, -numberOfDays).Truncate(time.Hour)
 		}
 
 		// Prepare hourly intervals
