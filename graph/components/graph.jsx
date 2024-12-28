@@ -19,12 +19,13 @@ export default function Graph() {
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
   const isSmallScreen = useMediaQuery("(max-width: 900px)");
+  const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
   useEffect(() => {
     const fetchGraphData = async () => {
       try {
         const response = await fetch(
-          `http://raspberrypi:5000/readings?days=${chosenDays}`
+          `http://${pi_ip}:5000/readings?days=${chosenDays}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -62,12 +63,21 @@ export default function Graph() {
   };
 
   return (
-    <Box sx={{ width: "100vw" }}>
+    <Box sx={{ padding: "2em", width: "95vw" }}>
       <h2>Environmental Readings</h2>
 
       <RealTime />
 
-      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "20px",
+          maxWidth: "80em",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
         <Button
           variant="outlined"
           sx={{ flex: 1, width: "100%" }}
@@ -96,7 +106,7 @@ export default function Graph() {
         >
           3 Months
         </Button>
-      </div>
+      </Box>
 
       {isSmallScreen ? (
         <Box>

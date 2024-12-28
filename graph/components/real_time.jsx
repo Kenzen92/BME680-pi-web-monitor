@@ -11,9 +11,10 @@ import {
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);
   const [flash, setFlash] = useState(false);
+  const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
   useEffect(() => {
-    const socket = new WebSocket("ws://raspberrypi:5000/ws");
+    const socket = new WebSocket(`ws://${pi_ip}:5000/ws`);
 
     socket.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
@@ -38,20 +39,19 @@ const RealTime = () => {
             display: "flex",
             flexDirection: "column",
             flexWrap: "wrap",
-            justifyContent: "center",
-            borderRadius: 2,
-            padding: 3,
-            boxShadow:
-              "0px 4px 6px rgba(0, 0, 0, 0.6), 0px 1px 3px rgba(0, 0, 0, 0.4)",
+            marginLeft: "auto",
+            marginRight: "auto",
+            alignItems: "center",
+            padding: 2,
+            maxWidth: "40rem",
           }}
         >
-          {" "}
           <Typography sx={{ alignContent: "center" }}>
-            Current Values:
+            Current Values
           </Typography>
           <Box
             sx={{
-              marginTop: 2,
+              marginTop: 1,
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
@@ -63,6 +63,7 @@ const RealTime = () => {
               <Typography>Temperature</Typography>
               <Typography
                 sx={{
+                  fontWeight: "bold",
                   color: flash
                     ? "rgb(255, 255, 255)"
                     : "rgba(255, 255, 255, 0.7)",
@@ -77,6 +78,7 @@ const RealTime = () => {
               <Typography>Humidity</Typography>
               <Typography
                 sx={{
+                  fontWeight: "bold",
                   color: flash
                     ? "rgb(255, 255, 255)"
                     : "rgba(255, 255, 255, 0.7)",
@@ -91,6 +93,7 @@ const RealTime = () => {
               <Typography>Air Pressure</Typography>
               <Typography
                 sx={{
+                  fontWeight: "bold",
                   color: flash
                     ? "rgb(255, 255, 255)"
                     : "rgba(255, 255, 255, 0.7)",
@@ -103,7 +106,9 @@ const RealTime = () => {
           </Box>
         </Box>
       ) : (
-        <Typography>Loading...</Typography>
+        <Box sx={{ mt: "1em", height: "3em" }}>
+          <Typography>Real-time data loading...</Typography>
+        </Box>
       )}
     </Box>
   );
