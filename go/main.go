@@ -170,13 +170,29 @@ func main() {
 
 		// Get the current date and time
 		currentTime := time.Now().UTC()
+		endTime := time.Now().UTC()
+		startTime := currentTime
+		offset := query.Get("offset") // offset determines pagination of graphs by scrolling back further
 
-		// Calculate start time based on the number of days
-		startTime := currentTime.AddDate(0, 0, -numberOfDays).Truncate(time.Hour)
+		if offset != "" {
+			multiplier, err := strconv.Atoi(offset)
+			if err != nil {
+				http.Error(w, "Invalid 'offset' query parameter", http.StatusBadRequest)
+				return
+			}
+			// multiply start time back by the offset
+			// Calculate start time based on the number of days
+			startDay := numberOfDays * multiplier
+			startTime = currentTime.AddDate(0, 0, -startDay).Truncate(time.Hour)
+			endDay := numberOfDays * (multiplier - 1)
+			// set the endtime to one unit beyond the start time
+			endTime = currentTime.AddDate(0, 0, -endDay).Truncate(time.Hour) // Default endtime to current time, this is used if there's no offset
+
+		}
 
 		// Prepare hourly intervals
 		intervals := []time.Time{}
-		for t := startTime; t.Before(currentTime); t = t.Add(time.Hour) {
+		for t := startTime; t.Before(endTime); t = t.Add(time.Hour) {
 			intervals = append(intervals, t)
 		}
 
@@ -191,7 +207,7 @@ func main() {
 			WHERE timestamp >= $1 AND timestamp < $2
 			GROUP BY hour_slot
 			ORDER BY hour_slot`,
-			startTime, currentTime)
+			startTime, endTime)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to query database", http.StatusInternalServerError)
