@@ -66,12 +66,10 @@ export default function Graph() {
   return (
     <Box
       sx={{
-        paddingLeft: "1em",
-        paddingRight: "1em",
-        width: "95vw",
-        height: "100vh",
+        width: "100vw",
       }}
     >
+      <Box sx={{ paddingLeft: "1em", paddingRight: "1em",}}>
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -125,8 +123,10 @@ export default function Graph() {
         </Button>
       </Box>
 
+      </Box>
+
       {isSmallScreen ? (
-        <Box sx={{ overflowY: "auto" }}>
+        <Box>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
             <Tab label="Temperature" sx={{ color: "#fff" }} />
             <Tab label="Humidity" sx={{ color: "#fff" }} />
@@ -164,7 +164,7 @@ export default function Graph() {
               Next
             </Button>
           </Box>
-          <Box sx={{ overflowY: "auto" }}>
+          <Box sx={{ height: '70vh', overflowY: "auto" }}>
             <TemperatureGraph data={graphData} />
             <HumidityGraph data={graphData} />
             <PressureGraph data={graphData} />
