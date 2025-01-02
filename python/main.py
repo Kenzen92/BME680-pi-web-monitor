@@ -94,7 +94,7 @@ def main():
         cursor.execute('''
         INSERT INTO environmental_readings (temperature, humidity, pressure, gas)
         VALUES (%s, %s, %s, %s);
-        ''', (median_temperature, median_humidity, median_pressure, gas_measurements))
+        ''', (median_temperature, median_humidity, median_pressure, gas_resistance))
         connection.commit()
 
 if __name__ == '__main__':

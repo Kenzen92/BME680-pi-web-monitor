@@ -103,6 +103,21 @@ const RealTime = () => {
                 {sensorData.pressure.toFixed(1) + "hPa"}
               </Typography>
             </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Typography>Air Resistance</Typography>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  color: flash
+                    ? "rgb(255, 255, 255)"
+                    : "rgba(255, 255, 255, 0.7)",
+                  transition: "background-color 0.3s ease-in-out",
+                }}
+              >
+                {sensorData.gas.toFixed(1) + "Ohms"}
+              </Typography>
+            </Box>
           </Box>
         </Box>
       ) : (
