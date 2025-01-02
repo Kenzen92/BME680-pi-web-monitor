@@ -23,6 +23,7 @@ def main():
     print(f"Temperature: {bme680.temperature:.2f} C")
     print(f"Humidity: {bme680.humidity:.2f} %")
     print(f"Pressure: {bme680.pressure:.2f} hPa")
+    print(f"Gas Resistance: {bme680.gas:.2f} Ohms")
 
     # Test Redis connection
     try:
@@ -53,6 +54,7 @@ def main():
         temperature REAL NOT NULL,        -- Temperature in Celsius
         humidity REAL NOT NULL,           -- Humidity in percentage
         pressure REAL NOT NULL,           -- Pressure in hPa
+        gas REAL,                          -- Gas resistance in Ohms
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Timestamp of the reading
     );
     ''')
@@ -61,21 +63,23 @@ def main():
     # Main loop to print sensor readings
     while True:
         i = 0
-
-        temp_measurements = []
-        humidity_measurements = []
-        pressure_measurements = []
         while i < 60:
+            temp_measurements = []
+            humidity_measurements = []
+            pressure_measurements = []
+            gas_measurements = []
             # Add recordings to the array for historical logs
             temp_measurements.append(bme680.temperature)
             humidity_measurements.append(bme680.humidity)
             pressure_measurements.append(bme680.pressure)
+            gas_measurements.append(bme680.gas)
             
             # Add data to the redis queue for instant monitoring
             data = {
             "temperature": bme680.temperature,
             "humidity": bme680.humidity,
             "pressure": bme680.pressure,
+            "gas": bme680.gas
             }
             r.publish("sensor-data", json.dumps(data))
             time.sleep(5)
@@ -85,11 +89,12 @@ def main():
         median_temperature = statistics.median(temp_measurements)
         median_humidity = statistics.median(humidity_measurements)
         median_pressure = statistics.median(pressure_measurements)
+        gas_resistance = statistics.median(gas_measurements)
 
         cursor.execute('''
-        INSERT INTO environmental_readings (temperature, humidity, pressure)
-        VALUES (%s, %s, %s);
-        ''', (median_temperature, median_humidity, median_pressure))
+        INSERT INTO environmental_readings (temperature, humidity, pressure, gas)
+        VALUES (%s, %s, %s, %s);
+        ''', (median_temperature, median_humidity, median_pressure, gas_measurements))
         connection.commit()
 
 if __name__ == '__main__':
