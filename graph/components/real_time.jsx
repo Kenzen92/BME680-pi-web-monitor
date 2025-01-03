@@ -115,7 +115,7 @@ const RealTime = () => {
                   transition: "background-color 0.3s ease-in-out",
                 }}
               >
-                {sensorData.gas.toFixed(1) + "Ohms"}
+                {sensorData.gas.toFixed(1) + "Ω"}
               </Typography>
             </Box>
           </Box>

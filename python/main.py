@@ -23,7 +23,7 @@ def main():
     print(f"Temperature: {bme680.temperature:.2f} C")
     print(f"Humidity: {bme680.humidity:.2f} %")
     print(f"Pressure: {bme680.pressure:.2f} hPa")
-    print(f"Gas Resistance: {bme680.gas:.2f} Ohms")
+    print(f"Gas Resistance: {bme680.gas:.2f} Ω")
 
     # Test Redis connection
     try:
@@ -54,7 +54,7 @@ def main():
         temperature REAL NOT NULL,        -- Temperature in Celsius
         humidity REAL NOT NULL,           -- Humidity in percentage
         pressure REAL NOT NULL,           -- Pressure in hPa
-        gas REAL,                          -- Gas resistance in Ohms
+        gas REAL,                          -- Gas resistance in Ω
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Timestamp of the reading
     );
     ''')

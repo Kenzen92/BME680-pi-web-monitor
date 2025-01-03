@@ -11,6 +11,7 @@ import {
   TemperatureGraph,
   HumidityGraph,
   PressureGraph,
+  GasResistanceGraph,
 } from "./measurement_graph.jsx";
 import RealTime from "./real_time.jsx";
 
@@ -131,10 +132,12 @@ export default function Graph() {
             <Tab label="Temperature" sx={{ color: "#fff" }} />
             <Tab label="Humidity" sx={{ color: "#fff" }} />
             <Tab label="Pressure" sx={{ color: "#fff" }} />
+            <Tab label="Gas Resistance" sx={{ color: "#fff" }} />
           </Tabs>
           {selectedTab === 0 && <TemperatureGraph data={graphData} />}
           {selectedTab === 1 && <HumidityGraph data={graphData} />}
           {selectedTab === 2 && <PressureGraph data={graphData} />}
+          {selectedTab === 3 && <GasResistanceGraph data={graphData} />}
         </Box>
       ) : (
         <Box>
@@ -168,6 +171,7 @@ export default function Graph() {
             <TemperatureGraph data={graphData} />
             <HumidityGraph data={graphData} />
             <PressureGraph data={graphData} />
+            <GasResistanceGraph data={graphData} />
           </Box>
         </Box>
       )}

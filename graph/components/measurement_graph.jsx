@@ -36,3 +36,15 @@ export const PressureGraph = ({ data }) => (
     />
   </div>
 );
+
+export const GasResistanceGraph = ({ data }) => (
+  <div>
+    <h2>Gas Resistance (Ω)</h2>
+    <BaseGraph
+      data={data}
+      dataKey="gas"
+      stroke="#cc5500"
+      yAxisLabel="Gas Resistance (Ω)"
+    />
+  </div>
+);

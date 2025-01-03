@@ -23,6 +23,7 @@ type Reading struct {
 	Temperature *float64 `json:"temperature,omitempty"`
 	Humidity    *float64 `json:"humidity,omitempty"`
 	Pressure    *float64 `json:"pressure,omitempty"`
+	Gas         *float64 `json:"gas,omitempty"`
 	Timestamp   string   `json:"timestamp"`
 }
 
@@ -204,7 +205,8 @@ func main() {
 				DATE_TRUNC('hour', timestamp) AS hour_slot,
 				AVG(temperature) AS avg_temperature,
 				AVG(humidity) AS avg_humidity,
-				AVG(pressure) AS avg_pressure
+				AVG(pressure) AS avg_pressure,
+				AVG(gas) as avg_gas
 			FROM environmental_readings
 			WHERE timestamp >= $1 AND timestamp < $2
 			GROUP BY hour_slot
@@ -221,8 +223,8 @@ func main() {
 		dataByHour := map[string]Reading{}
 		for rows.Next() {
 			var hourSlot time.Time
-			var temp, humidity, pressure sql.NullFloat64
-			err := rows.Scan(&hourSlot, &temp, &humidity, &pressure)
+			var temp, humidity, pressure, gas sql.NullFloat64
+			err := rows.Scan(&hourSlot, &temp, &humidity, &pressure, &gas)
 			if err != nil {
 				http.Error(w, "Failed to scan row", http.StatusInternalServerError)
 				return
@@ -232,6 +234,7 @@ func main() {
 				Temperature: nullableFloatToPointer(temp),
 				Humidity:    nullableFloatToPointer(humidity),
 				Pressure:    nullableFloatToPointer(pressure),
+				Gas:         nullableFloatToPointer(gas),
 			}
 		}
 
@@ -247,6 +250,7 @@ func main() {
 					Temperature: nil,
 					Humidity:    nil,
 					Pressure:    nil,
+					Gas:         nil,
 				})
 			}
 		}
