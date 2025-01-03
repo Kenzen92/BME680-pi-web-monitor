@@ -18,6 +18,8 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
       return value.toFixed(2); // 2 decimal places for humidity
     } else if (dataKey === "temperature") {
       return value.toFixed(1);
+    } else if (dataKey == "gas") {
+      return value;
     } else {
       return value.toFixed(0); // 1 decimal place for temperature and pressure
     }

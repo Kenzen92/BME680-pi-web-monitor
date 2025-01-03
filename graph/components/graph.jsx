@@ -39,6 +39,7 @@ export default function Graph() {
             temperature: item.temperature?.toFixed(2),
             pressure: item.pressure,
             humidity: item.humidity?.toFixed(2),
+            gas: item.gas?.toFixed(1),
             timestamp:
               chosenDays === 1
                 ? date.toLocaleTimeString([], {
@@ -154,7 +155,7 @@ export default function Graph() {
             <Button
               variant="outlined"
               sx={{ minWidth: "8em" }}
-              onClick={() => setOffset(offset + 1)}
+              onClick={() => setOffset(offset)}
             >
               Previous
             </Button>
@@ -167,7 +168,7 @@ export default function Graph() {
               Next
             </Button>
           </Box>
-          <Box sx={{ overflowY: "auto" }}>
+          <Box>
             <TemperatureGraph data={graphData} />
             <HumidityGraph data={graphData} />
             <PressureGraph data={graphData} />
