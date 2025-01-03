@@ -206,7 +206,7 @@ func main() {
 				AVG(temperature) AS avg_temperature,
 				AVG(humidity) AS avg_humidity,
 				AVG(pressure) AS avg_pressure,
-				AVG(gas) as avg_gas
+				AVG(gas) AS avg_gas
 			FROM environmental_readings
 			WHERE timestamp >= $1 AND timestamp < $2
 			GROUP BY hour_slot
