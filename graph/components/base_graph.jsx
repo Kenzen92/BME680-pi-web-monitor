@@ -26,7 +26,7 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
   };
 
   return (
-    <ResponsiveContainer width={"100%"} height={500}>
+    <ResponsiveContainer width={"100%"} height={window.innerHeight * 0.32}>
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}

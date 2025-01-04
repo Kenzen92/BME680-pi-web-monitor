@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Tabs,
-  Tab,
-  useMediaQuery,
-  Box,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);

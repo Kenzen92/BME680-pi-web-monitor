@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Tabs,
-  Tab,
-  useMediaQuery,
-  Box,
-  Button,
-  Container,
-} from "@mui/material";
+import { Tabs, Tab, useMediaQuery, Box, Button, Grid } from "@mui/material";
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -71,7 +64,7 @@ export default function Graph() {
         paddingLeft: "1em",
         paddingRight: "1em",
         width: "95vw",
-        height: "100vh",
+        height: "95vh",
       }}
     >
       <h2>Environmental Readings</h2>
@@ -83,9 +76,9 @@ export default function Graph() {
           display: "flex",
           gap: "10px",
           marginBottom: "20px",
-          maxWidth: "80em",
           marginLeft: "auto",
           marginRight: "auto",
+          maxWidth: "70em",
         }}
       >
         <Button
@@ -155,7 +148,7 @@ export default function Graph() {
             <Button
               variant="outlined"
               sx={{ minWidth: "8em" }}
-              onClick={() => setOffset(offset)}
+              onClick={() => setOffset(offset + 1)}
             >
               Previous
             </Button>
@@ -168,11 +161,23 @@ export default function Graph() {
               Next
             </Button>
           </Box>
-          <Box>
-            <TemperatureGraph data={graphData} />
-            <HumidityGraph data={graphData} />
-            <PressureGraph data={graphData} />
-            <GasResistanceGraph data={graphData} />
+          <Box
+            sx={{ display: "flex", justifyContent: "center", marginTop: "2em" }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TemperatureGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <HumidityGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <PressureGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <GasResistanceGraph data={graphData} />
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       )}
