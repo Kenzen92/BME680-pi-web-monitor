@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  Tabs,
-  Tab,
-  useMediaQuery,
-  Box,
-  Button,
-  Container,
-} from "@mui/material";
+import { Tabs, Tab, useMediaQuery, Box, Button, Grid } from "@mui/material";
 import {
   TemperatureGraph,
   HumidityGraph,
   PressureGraph,
+  GasResistanceGraph,
 } from "./measurement_graph.jsx";
 import RealTime from "./real_time.jsx";
 
@@ -38,6 +32,7 @@ export default function Graph() {
             temperature: item.temperature?.toFixed(2),
             pressure: item.pressure,
             humidity: item.humidity?.toFixed(2),
+            gas: item.gas?.toFixed(1),
             timestamp:
               chosenDays === 1
                 ? date.toLocaleTimeString([], {
@@ -66,10 +61,16 @@ export default function Graph() {
   return (
     <Box
       sx={{
+
+        paddingLeft: "1em",
+        paddingRight: "1em",
+        width: "95vw",
+        height: "95vh",
+      }}
         width: "100vw",
       }}
     >
-      <Box sx={{ paddingLeft: "1em", paddingRight: "1em",}}>
+
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -79,9 +80,9 @@ export default function Graph() {
           display: "flex",
           gap: "10px",
           marginBottom: "20px",
-          maxWidth: "80em",
           marginLeft: "auto",
           marginRight: "auto",
+          maxWidth: "70em",
         }}
       >
         <Button
@@ -126,15 +127,17 @@ export default function Graph() {
       </Box>
 
       {isSmallScreen ? (
-        <Box>
+        <Box sx={{ overflowY: "auto" }}>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
             <Tab label="Temperature" sx={{ color: "#fff" }} />
             <Tab label="Humidity" sx={{ color: "#fff" }} />
             <Tab label="Pressure" sx={{ color: "#fff" }} />
+            <Tab label="Gas Resistance" sx={{ color: "#fff" }} />
           </Tabs>
           {selectedTab === 0 && <TemperatureGraph data={graphData} />}
           {selectedTab === 1 && <HumidityGraph data={graphData} />}
           {selectedTab === 2 && <PressureGraph data={graphData} />}
+          {selectedTab === 3 && <GasResistanceGraph data={graphData} />}
         </Box>
       ) : (
         <Box>
@@ -164,10 +167,28 @@ export default function Graph() {
               Next
             </Button>
           </Box>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", marginTop: "2em" }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TemperatureGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <HumidityGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <PressureGraph data={graphData} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <GasResistanceGraph data={graphData} />
+              </Grid>
+            </Grid>
           <Box sx={{ height: '70vh', overflowY: "auto" }}>
             <TemperatureGraph data={graphData} />
             <HumidityGraph data={graphData} />
             <PressureGraph data={graphData} />
+
           </Box>
         </Box>
       )}

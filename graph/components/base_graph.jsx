@@ -18,13 +18,15 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
       return value.toFixed(2); // 2 decimal places for humidity
     } else if (dataKey === "temperature") {
       return value.toFixed(1);
+    } else if (dataKey == "gas") {
+      return value;
     } else {
       return value.toFixed(0); // 1 decimal place for temperature and pressure
     }
   };
 
   return (
-    <ResponsiveContainer width={"100%"} height={500}>
+    <ResponsiveContainer width={"100%"} height={window.innerHeight * 0.32}>
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
