@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Tabs, Tab, useMediaQuery, Box, Button, Grid } from "@mui/material";
+import { Tabs, Tab, useMediaQuery, Box, Button } from "@mui/material";
+import Grid2 from "@mui/material/Unstable_Grid2"; // Use Grid2 instead of Grid
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -8,7 +9,6 @@ import {
 } from "./measurement_graph.jsx";
 import RealTime from "./real_time.jsx";
 
-export default function Graph() {
   const [graphData, setGraphData] = useState([]);
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -66,8 +66,10 @@ export default function Graph() {
         paddingRight: "1em",
         width: "95vw",
         height: "95vh",
-      }}
-        width: "100vw",
+        paddingLeft: "1em",
+        paddingRight: "1em",
+        width: "95vw",
+        height: "95vh",
       }}
     >
 
@@ -124,8 +126,6 @@ export default function Graph() {
         </Button>
       </Box>
 
-      </Box>
-
       {isSmallScreen ? (
         <Box sx={{ overflowY: "auto" }}>
           <Tabs value={selectedTab} onChange={handleTabChange} centered>
@@ -166,32 +166,26 @@ export default function Graph() {
             >
               Next
             </Button>
-          </Box>
-          <Box
-            sx={{ display: "flex", justifyContent: "center", marginTop: "2em" }}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+            <Grid2 container spacing={2}>
+              <Grid2 xs={12} sm={6}>
                 <TemperatureGraph data={graphData} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Grid2>
+              <Grid2 xs={12} sm={6}>
                 <HumidityGraph data={graphData} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Grid2>
+              <Grid2 xs={12} sm={6}>
                 <PressureGraph data={graphData} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Grid2>
+              <Grid2 xs={12} sm={6}>
                 <GasResistanceGraph data={graphData} />
-              </Grid>
-            </Grid>
-          <Box sx={{ height: '70vh', overflowY: "auto" }}>
-            <TemperatureGraph data={graphData} />
+              </Grid2>
+            </Grid2>
+          </Box>
             <HumidityGraph data={graphData} />
             <PressureGraph data={graphData} />
 
           </Box>
-        </Box>
+
       )}
     </Box>
   );
-}
