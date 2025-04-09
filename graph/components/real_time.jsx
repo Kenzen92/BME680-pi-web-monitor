@@ -44,15 +44,13 @@ const RealTime = () => {
           </Typography>
           <Box
             sx={{
-              marginTop: 1,
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              gap: 5,
               justifyContent: "center",
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
               <Typography>Temperature</Typography>
               <Typography
                 sx={{
@@ -67,7 +65,7 @@ const RealTime = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
               <Typography>Humidity</Typography>
               <Typography
                 sx={{
@@ -82,7 +80,7 @@ const RealTime = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
               <Typography>Air Pressure</Typography>
               <Typography
                 sx={{

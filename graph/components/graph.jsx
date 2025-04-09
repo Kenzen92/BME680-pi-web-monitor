@@ -61,12 +61,16 @@ export default function Graph() {
   return (
     <Box
       sx={{
+
         paddingLeft: "1em",
         paddingRight: "1em",
         width: "95vw",
         height: "95vh",
       }}
+        width: "100vw",
+      }}
     >
+
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -118,6 +122,8 @@ export default function Graph() {
         >
           3 Months
         </Button>
+      </Box>
+
       </Box>
 
       {isSmallScreen ? (
@@ -178,6 +184,11 @@ export default function Graph() {
                 <GasResistanceGraph data={graphData} />
               </Grid>
             </Grid>
+          <Box sx={{ height: '70vh', overflowY: "auto" }}>
+            <TemperatureGraph data={graphData} />
+            <HumidityGraph data={graphData} />
+            <PressureGraph data={graphData} />
+
           </Box>
         </Box>
       )}
