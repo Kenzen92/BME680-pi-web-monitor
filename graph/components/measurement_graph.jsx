@@ -1,8 +1,9 @@
 import React from "react";
 import BaseGraph from "./base_graph.jsx";
+import { Box } from "@mui/material";
 
 export const TemperatureGraph = ({ data }) => (
-  <div>
+  <Box sx={{ minWidth: "300px" }}>
     <h2>Temperature (°C)</h2>
     <BaseGraph
       data={data}
@@ -10,11 +11,11 @@ export const TemperatureGraph = ({ data }) => (
       stroke="#8884d8"
       yAxisLabel="Temperature (°C)"
     />
-  </div>
+  </Box>
 );
 
 export const HumidityGraph = ({ data }) => (
-  <div>
+  <Box sx={{ minWidth: "300px" }}>
     <h2>Humidity (%)</h2>
     <BaseGraph
       data={data}
@@ -22,11 +23,11 @@ export const HumidityGraph = ({ data }) => (
       stroke="#82ca9d"
       yAxisLabel="Humidity (%)"
     />
-  </div>
+  </Box>
 );
 
 export const PressureGraph = ({ data }) => (
-  <div>
+  <Box sx={{ minWidth: "300px" }}>
     <h2>Pressure (hPa)</h2>
     <BaseGraph
       data={data}
@@ -34,11 +35,11 @@ export const PressureGraph = ({ data }) => (
       stroke="#ffc658"
       yAxisLabel="Pressure (hPa)"
     />
-  </div>
+  </Box>
 );
 
 export const GasResistanceGraph = ({ data }) => (
-  <div>
+  <Box sx={{ minWidth: "300px" }}>
     <h2>Gas Resistance (Ω)</h2>
     <BaseGraph
       data={data}
@@ -46,5 +47,5 @@ export const GasResistanceGraph = ({ data }) => (
       stroke="#cc5500"
       yAxisLabel="Gas Resistance (Ω)"
     />
-  </div>
+  </Box>
 );

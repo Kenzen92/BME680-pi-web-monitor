@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, Tab, useMediaQuery, Box, Button } from "@mui/material";
-import Grid2 from "@mui/material/Unstable_Grid2"; // Use Grid2 instead of Grid
+import Grid2 from "@mui/material/Grid2"; // Use Grid2 instead of Grid
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -8,6 +8,7 @@ import {
   GasResistanceGraph,
 } from "./measurement_graph.jsx";
 import RealTime from "./real_time.jsx";
+export default function Graph () {
 
   const [graphData, setGraphData] = useState([]);
   const [chosenDays, setChosenDays] = useState(1);
@@ -66,10 +67,6 @@ import RealTime from "./real_time.jsx";
         paddingRight: "1em",
         width: "95vw",
         height: "95vh",
-        paddingLeft: "1em",
-        paddingRight: "1em",
-        width: "95vw",
-        height: "95vh",
       }}
     >
 
@@ -80,6 +77,7 @@ import RealTime from "./real_time.jsx";
       <Box
         sx={{
           display: "flex",
+          flexDirection: "row",
           gap: "10px",
           marginBottom: "20px",
           marginLeft: "auto",
@@ -149,6 +147,7 @@ import RealTime from "./real_time.jsx";
               display: "flex",
               gap: "3em",
               justifyContent: "center",
+              flexDirection: "row",
             }}
           >
             <Button
@@ -166,6 +165,7 @@ import RealTime from "./real_time.jsx";
             >
               Next
             </Button>
+            </Box>
             <Grid2 container spacing={2}>
               <Grid2 xs={12} sm={6}>
                 <TemperatureGraph data={graphData} />
@@ -181,11 +181,11 @@ import RealTime from "./real_time.jsx";
               </Grid2>
             </Grid2>
           </Box>
-            <HumidityGraph data={graphData} />
-            <PressureGraph data={graphData} />
 
-          </Box>
+
 
       )}
     </Box>
   );
+
+}
