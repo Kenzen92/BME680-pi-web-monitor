@@ -165,7 +165,9 @@ export default function Graph () {
             >
               Next
             </Button>
+
             </Box>
+
             <Grid2 container spacing={2}>
               <Grid2 xs={12} sm={6}>
                 <TemperatureGraph data={graphData} />
@@ -180,6 +182,7 @@ export default function Graph () {
                 <GasResistanceGraph data={graphData} />
               </Grid2>
             </Grid2>
+
           </Box>
 
 
@@ -189,3 +192,4 @@ export default function Graph () {
   );
 
 }
+
