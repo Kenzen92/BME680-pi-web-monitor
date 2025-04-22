@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, Tab, useMediaQuery, Box, Button } from "@mui/material";
-import Grid2 from "@mui/material/Grid2"; // Use Grid2 instead of Grid
+import Grid from "@mui/material/Grid";
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -8,8 +8,7 @@ import {
   GasResistanceGraph,
 } from "./measurement_graph.jsx";
 import RealTime from "./real_time.jsx";
-export default function Graph () {
-
+export default function Graph() {
   const [graphData, setGraphData] = useState([]);
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -62,14 +61,12 @@ export default function Graph () {
   return (
     <Box
       sx={{
-
         paddingLeft: "1em",
         paddingRight: "1em",
         width: "95vw",
         height: "95vh",
       }}
     >
-
       <h2>Environmental Readings</h2>
 
       <RealTime />
@@ -165,31 +162,24 @@ export default function Graph () {
             >
               Next
             </Button>
-
-            </Box>
-
-            <Grid2 container spacing={2}>
-              <Grid2 xs={12} sm={6}>
-                <TemperatureGraph data={graphData} />
-              </Grid2>
-              <Grid2 xs={12} sm={6}>
-                <HumidityGraph data={graphData} />
-              </Grid2>
-              <Grid2 xs={12} sm={6}>
-                <PressureGraph data={graphData} />
-              </Grid2>
-              <Grid2 xs={12} sm={6}>
-                <GasResistanceGraph data={graphData} />
-              </Grid2>
-            </Grid2>
-
           </Box>
 
-
-
+          <Grid container spacing={2}>
+            <Grid xs={12} sm={6}>
+              <TemperatureGraph data={graphData} />
+            </Grid>
+            <Grid xs={12} sm={6}>
+              <HumidityGraph data={graphData} />
+            </Grid>
+            <Grid xs={12} sm={6}>
+              <PressureGraph data={graphData} />
+            </Grid>
+            <Grid xs={12} sm={6}>
+              <GasResistanceGraph data={graphData} />
+            </Grid>
+          </Grid>
+        </Box>
       )}
     </Box>
   );
-
 }
-
