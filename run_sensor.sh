@@ -5,15 +5,15 @@ set -e  # Exit immediately if any command fails
 VENV_DIR="python/venv"
 
 echo "Stopping any running containers..."
-docker-compose down || true
+docker compose down || true
 
 echo "Building Docker containers..."
-docker-compose build
+docker compose build
 
 echo "Starting Docker containers in detached mode..."
-docker-compose up -d
+docker compose up -d
 
-# Ensure docker-compose starts successfully before proceeding
+# Ensure docker compose starts successfully before proceeding
 if [ $? -eq 0 ]; then
   echo "Docker containers started successfully."
 else
