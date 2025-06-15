@@ -21,6 +21,9 @@ else
   exit 1
 fi
 
+echo "Activating Python virtual environment..."
+source "$VENV_DIR/bin/activate"
+
 echo "Starting Python script in the background..."
 nohup python3 -u python/main.py > python/main.log 2>&1 &
 
