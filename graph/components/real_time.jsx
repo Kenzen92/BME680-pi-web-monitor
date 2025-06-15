@@ -6,6 +6,8 @@ const RealTime = () => {
   const [flash, setFlash] = useState(false);
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
+  const realTimeStyles = {display: "flex", flexDirection: "column", p: 2, justifyContent: "center"};
+
   useEffect(() => {
     const socket = new WebSocket(`ws://${pi_ip}:5000/ws`);
 
@@ -50,7 +52,7 @@ const RealTime = () => {
               justifyContent: "center",
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
+            <Box sx={{ ...realTimeStyles }}>
               <Typography>Temperature</Typography>
               <Typography
                 sx={{
@@ -65,7 +67,7 @@ const RealTime = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
+            <Box sx={{ ...realTimeStyles }}>
               <Typography>Humidity</Typography>
               <Typography
                 sx={{
@@ -80,7 +82,7 @@ const RealTime = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column", p: 2 }}>
+            <Box sx={{ ...realTimeStyles }}>
               <Typography>Air Pressure</Typography>
               <Typography
                 sx={{
@@ -95,7 +97,7 @@ const RealTime = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ ...realTimeStyles }}>
               <Typography>Air Resistance</Typography>
               <Typography
                 sx={{
