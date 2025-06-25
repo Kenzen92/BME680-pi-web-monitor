@@ -27,6 +27,7 @@ pip install -r python/requirements.txt
 echo "Building Vite project..."
 cd graph
 npm install  # Ensure dependencies are installed
+rm -rf dist  # while inside the graph/ directory
 npm run build
 
 cd ../
