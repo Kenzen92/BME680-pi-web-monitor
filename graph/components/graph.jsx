@@ -13,6 +13,7 @@ export default function Graph() {
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
   const [offset, setOffset] = useState(1);
+  const [currentFullScreenGraph, setCurrentFullScreenGraph] = useState(null); // 'temperature', 'humidity', 'pressure', 'gas' or null
   const isSmallScreen = useMediaQuery("(max-width: 900px)");
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
@@ -56,6 +57,55 @@ export default function Graph() {
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
+  };
+
+  const handleToggleFullScreen = (graphName) => {
+    setCurrentFullScreenGraph(
+      currentFullScreenGraph === graphName ? null : graphName
+    );
+  };
+
+  const renderGraph = (graphName, GraphComponent) => {
+    const isFullScreen = currentFullScreenGraph === graphName;
+    const isOtherGraphFullScreen =
+      currentFullScreenGraph !== null && currentFullScreenGraph !== graphName;
+
+    if (isOtherGraphFullScreen && !isFullScreen) {
+      // Render smaller if another graph is full screen
+      return (
+        <Grid item xs={12} sm={3}>
+          <Box sx={{ height: "150px", overflow: "hidden" }}>
+            <GraphComponent
+              data={graphData}
+              isFullScreen={false}
+              onToggleFullScreen={() => handleToggleFullScreen(graphName)}
+            />
+          </Box>
+        </Grid>
+      );
+    } else if (isFullScreen) {
+      // Render full screen
+      return (
+        <Grid item xs={12}>
+          <GraphComponent
+            data={graphData}
+            isFullScreen={true}
+            onToggleFullScreen={() => handleToggleFullScreen(graphName)}
+          />
+        </Grid>
+      );
+    } else {
+      // Render in 2x2 grid
+      return (
+        <Grid item xs={12} sm={6}>
+          <GraphComponent
+            data={graphData}
+            isFullScreen={false}
+            onToggleFullScreen={() => handleToggleFullScreen(graphName)}
+          />
+        </Grid>
+      );
+    }
   };
 
   return (
@@ -165,18 +215,37 @@ export default function Graph() {
           </Box>
 
           <Grid container spacing={2}>
-            <Grid xs={12} sm={6}>
-              <TemperatureGraph data={graphData} />
-            </Grid>
-            <Grid xs={12} sm={6}>
-              <HumidityGraph data={graphData} />
-            </Grid>
-            <Grid xs={12} sm={6}>
-              <PressureGraph data={graphData} />
-            </Grid>
-            <Grid xs={12} sm={6}>
-              <GasResistanceGraph data={graphData} />
-            </Grid>
+            {currentFullScreenGraph === null ? (
+              <>
+                {renderGraph("temperature", TemperatureGraph)}
+                {renderGraph("humidity", HumidityGraph)}
+                {renderGraph("pressure", PressureGraph)}
+                {renderGraph("gas", GasResistanceGraph)}
+              </>
+            ) : (
+              <>
+                {renderGraph(currentFullScreenGraph, (
+                  {
+                    temperature: TemperatureGraph,
+                    humidity: HumidityGraph,
+                    pressure: PressureGraph,
+                    gas: GasResistanceGraph,
+                  }[currentFullScreenGraph]
+                ))}
+                <Grid item xs={12}>
+                  <Grid container spacing={2} sx={{ height: "180px", overflow: "hidden" }}>
+                    {currentFullScreenGraph !== "temperature" &&
+                      renderGraph("temperature", TemperatureGraph)}
+                    {currentFullScreenGraph !== "humidity" &&
+                      renderGraph("humidity", HumidityGraph)}
+                    {currentFullScreenGraph !== "pressure" &&
+                      renderGraph("pressure", PressureGraph)}
+                    {currentFullScreenGraph !== "gas" &&
+                      renderGraph("gas", GasResistanceGraph)}
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </Grid>
         </Box>
       )}
