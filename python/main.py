@@ -44,7 +44,6 @@ def main():
     print(f"Gas Resistance: {bme680.gas:.2f} Ω")
 
 
-        # Replace your try/except with this:
     r = wait_for_redis()
 
     # Connect to the PostgreSQL database
