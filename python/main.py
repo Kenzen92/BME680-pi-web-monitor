@@ -11,6 +11,21 @@ import statistics
 import redis
 import json
 
+def wait_for_redis(host='localhost', port=6379, retries=10, delay=5):
+    """Wait for Redis server to become available."""
+    for attempt in range(1, retries + 1):
+        try:
+            r = redis.Redis(host=host, port=port, decode_responses=True)
+            r.ping()
+            print("Connected to Redis successfully")
+            return r
+        except redis.ConnectionError as e:
+            print(f"Attempt {attempt} failed: Redis not available yet: {e}")
+            if attempt == retries:
+                print("Max retries reached. Exiting.")
+                raise
+            time.sleep(delay)
+
 def main():
     print("Running main")
 
@@ -28,16 +43,9 @@ def main():
     print(f"Pressure: {bme680.pressure:.2f} hPa")
     print(f"Gas Resistance: {bme680.gas:.2f} Ω")
 
-    # Test Redis connection
-    try:
-        r = redis.Redis(host='localhost', port=6379, decode_responses=True)
-        # Check if Redis server is reachable
-        r.ping()
-        print("Connected to Redis successfully")
-    except redis.ConnectionError as e:
-        print(f"Failed to connect to Redis: {e}")
-        print("Make sure the Redis server is running and accessible.")
-        return  # Exit the script if Redis is not available
+
+        # Replace your try/except with this:
+    r = wait_for_redis()
 
     # Connect to the PostgreSQL database
     connection = psycopg2.connect(
