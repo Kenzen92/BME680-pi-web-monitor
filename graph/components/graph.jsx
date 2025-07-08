@@ -13,8 +13,6 @@ export default function Graph() {
   const [chosenDays, setChosenDays] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
   const [offset, setOffset] = useState(1);
-  const [currentFullScreenGraph, setCurrentFullScreenGraph] = useState(null); // 'temperature', 'humidity', 'pressure', 'gas' or null
-  const isSmallScreen = useMediaQuery("(max-width: 900px)");
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
   useEffect(() => {
@@ -57,55 +55,6 @@ export default function Graph() {
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
-  };
-
-  const handleToggleFullScreen = (graphName) => {
-    setCurrentFullScreenGraph(
-      currentFullScreenGraph === graphName ? null : graphName
-    );
-  };
-
-  const renderGraph = (graphName, GraphComponent) => {
-    const isFullScreen = currentFullScreenGraph === graphName;
-    const isOtherGraphFullScreen =
-      currentFullScreenGraph !== null && currentFullScreenGraph !== graphName;
-
-    if (isOtherGraphFullScreen && !isFullScreen) {
-      // Render smaller if another graph is full screen
-      return (
-        <Grid item xs={12} sm={3}>
-          <Box sx={{ height: "150px", overflow: "hidden" }}>
-            <GraphComponent
-              data={graphData}
-              isFullScreen={false}
-              onToggleFullScreen={() => handleToggleFullScreen(graphName)}
-            />
-          </Box>
-        </Grid>
-      );
-    } else if (isFullScreen) {
-      // Render full screen
-      return (
-        <Grid item xs={12}>
-          <GraphComponent
-            data={graphData}
-            isFullScreen={true}
-            onToggleFullScreen={() => handleToggleFullScreen(graphName)}
-          />
-        </Grid>
-      );
-    } else {
-      // Render in 2x2 grid
-      return (
-        <Grid item xs={12} sm={6}>
-          <GraphComponent
-            data={graphData}
-            isFullScreen={false}
-            onToggleFullScreen={() => handleToggleFullScreen(graphName)}
-          />
-        </Grid>
-      );
-    }
   };
 
   return (
@@ -171,84 +120,18 @@ export default function Graph() {
         </Button>
       </Box>
 
-      {isSmallScreen ? (
-        <Box sx={{ overflowY: "auto" }}>
-          <Tabs value={selectedTab} onChange={handleTabChange} centered>
-            <Tab label="Temperature" sx={{ color: "#fff" }} />
-            <Tab label="Humidity" sx={{ color: "#fff" }} />
-            <Tab label="Pressure" sx={{ color: "#fff" }} />
-            <Tab label="Gas Resistance" sx={{ color: "#fff" }} />
-          </Tabs>
-          {selectedTab === 0 && <TemperatureGraph data={graphData} />}
-          {selectedTab === 1 && <HumidityGraph data={graphData} />}
-          {selectedTab === 2 && <PressureGraph data={graphData} />}
-          {selectedTab === 3 && <GasResistanceGraph data={graphData} />}
-        </Box>
-      ) : (
-        <Box>
-          <Box
-            sx={{
-              maxWidth: "40em",
-              marginLeft: "auto",
-              marginRight: "auto",
-              display: "flex",
-              gap: "3em",
-              justifyContent: "center",
-              flexDirection: "row",
-            }}
-          >
-            <Button
-              variant="outlined"
-              sx={{ minWidth: "8em" }}
-              onClick={() => setOffset(offset + 1)}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{ minWidth: "8em" }}
-              onClick={() => setOffset(offset - 1)}
-              disabled={offset == 1}
-            >
-              Next
-            </Button>
-          </Box>
-
-          <Grid container spacing={2}>
-            {currentFullScreenGraph === null ? (
-              <>
-                {renderGraph("temperature", TemperatureGraph)}
-                {renderGraph("humidity", HumidityGraph)}
-                {renderGraph("pressure", PressureGraph)}
-                {renderGraph("gas", GasResistanceGraph)}
-              </>
-            ) : (
-              <>
-                {renderGraph(currentFullScreenGraph, (
-                  {
-                    temperature: TemperatureGraph,
-                    humidity: HumidityGraph,
-                    pressure: PressureGraph,
-                    gas: GasResistanceGraph,
-                  }[currentFullScreenGraph]
-                ))}
-                <Grid item xs={12}>
-                  <Grid container spacing={2} sx={{ height: "180px", overflow: "hidden" }}>
-                    {currentFullScreenGraph !== "temperature" &&
-                      renderGraph("temperature", TemperatureGraph)}
-                    {currentFullScreenGraph !== "humidity" &&
-                      renderGraph("humidity", HumidityGraph)}
-                    {currentFullScreenGraph !== "pressure" &&
-                      renderGraph("pressure", PressureGraph)}
-                    {currentFullScreenGraph !== "gas" &&
-                      renderGraph("gas", GasResistanceGraph)}
-                  </Grid>
-                </Grid>
-              </>
-            )}
-          </Grid>
-        </Box>
-      )}
+      <Box sx={{ overflowY: "auto" }}>
+        <Tabs value={selectedTab} onChange={handleTabChange} centered>
+          <Tab label="Temperature" sx={{ color: "#fff" }} />
+          <Tab label="Humidity" sx={{ color: "#fff" }} />
+          <Tab label="Pressure" sx={{ color: "#fff" }} />
+          <Tab label="Gas Resistance" sx={{ color: "#fff" }} />
+        </Tabs>
+        {selectedTab === 0 && <TemperatureGraph data={graphData} />}
+        {selectedTab === 1 && <HumidityGraph data={graphData} />}
+        {selectedTab === 2 && <PressureGraph data={graphData} />}
+        {selectedTab === 3 && <GasResistanceGraph data={graphData} />}
+      </Box>
     </Box>
   );
 }
