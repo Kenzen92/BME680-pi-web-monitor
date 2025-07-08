@@ -26,37 +26,39 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isFullScreen }) => {
   };
 
   return (
-    <ResponsiveContainer
-      width={"100%"}
-      height={isFullScreen ? window.innerHeight * 0.8 : window.innerHeight * 0.32}
-    >
-      <LineChart
-        data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="2 2" />
-        <XAxis dataKey="timestamp" tick={{ fontSize: 10 }} />
+    <ResponsiveContainer width={"100%"} height={0.5 * screen.availHeight}>
+      <LineChart data={data} margin={{ top: 5, right: 15, left: 5, bottom: 5 }}>
+        <CartesianGrid stroke="#fff" strokeOpacity={0.4} />
+
+        <XAxis
+          dataKey="timestamp"
+          tick={{ fill: "#fff", fontSize: 12, fontWeight: 400 }}
+          tickLine={false}
+        />
+
         <YAxis
           domain={["auto", "auto"]}
           tickFormatter={tickFormatter}
-          tickCount={15} // Ensures ticks are distributed evenly
-          interval="preserveStartEnd" // Ensures whole number ticks
+          tick={{ fill: "#fff", fontSize: 12, fontWeight: 400 }}
+          tickLine={false}
+          tickCount={12}
+          interval="preserveStartEnd"
         />
+
         <Tooltip />
-        <Legend />
         <Line
           type="monotone"
           dataKey={dataKey}
           stroke={stroke}
-          strokeWidth={2}
+          strokeWidth={4}
           name={yAxisLabel}
-          dot={false}
+          dot={true}
         />
         <Brush
           dataKey="timestamp"
           height={30}
           stroke={stroke}
-          travellerWidth={10}
+          travellerWidth={15}
         />
       </LineChart>
     </ResponsiveContainer>

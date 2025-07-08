@@ -120,7 +120,7 @@ export default function Graph() {
         </Button>
       </Box>
 
-      <Box sx={{ overflowY: "auto" }}>
+      <Box>
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Temperature" sx={{ color: "#fff" }} />
           <Tab label="Humidity" sx={{ color: "#fff" }} />
