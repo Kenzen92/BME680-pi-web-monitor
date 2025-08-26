@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Stack, useMediaQuery, Box, Button } from "@mui/material";
+import { Stack, useMediaQuery, Box, Button, Tabs, Tab } from "@mui/material";
 import {
   TemperatureGraph,
   HumidityGraph,
@@ -11,6 +11,7 @@ export default function Graph() {
   const [graphData, setGraphData] = useState([]);
   const [chosenDays, setChosenDays] = useState(1);
   const [offset, setOffset] = useState(1);
+  const [tabIndex, setTabIndex] = useState(0);
   const isSmallScreen = useMediaQuery("(max-width: 900px)");
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
@@ -65,93 +66,274 @@ export default function Graph() {
   }, [chosenDays, offset]);
 
   return (
-    <Box
-      sx={{
-        padding: isSmallScreen ? 0 : 2,
-        width: "100%",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
-    >
-      <h2 style={{ textAlign: "center" }}>Environmental Readings</h2>
-      <RealTime />
+    // Desktop layout
+    !isSmallScreen ? (
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          gap: "10px",
-          marginBottom: "20px",
+          flexDirection: "column",
+          width: "100%",
           justifyContent: "center",
         }}
       >
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setChosenDays(1);
-            setOffset(1);
+        <h2 style={{ textAlign: "center" }}>Environmental Readings</h2>
+        <RealTime />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "10px",
+            marginBottom: "20px",
+            justifyContent: "center",
           }}
         >
-          1 Day
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setChosenDays(7);
-            setOffset(1);
-          }}
-        >
-          1 Week
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setChosenDays(30);
-            setOffset(1);
-          }}
-        >
-          1 Month
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setChosenDays(90);
-            setOffset(1);
-          }}
-        >
-          3 Months
-        </Button>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          mb: 2,
-        }}
-      >
-        <Button
-          variant="outlined"
-          onClick={() => setOffset((prev) => prev + 1)}
-        >
-          Previous
-        </Button>
-        <Box sx={{ display: "flex", alignItems: "center", mx: 2 }}>
-          Page {offset}
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(1);
+              setOffset(1);
+            }}
+          >
+            1 Day
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(7);
+              setOffset(1);
+            }}
+          >
+            1 Week
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(30);
+              setOffset(1);
+            }}
+          >
+            1 Month
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(90);
+              setOffset(1);
+            }}
+          >
+            3 Months
+          </Button>
         </Box>
-        <Button
-          variant="outlined"
-          onClick={() => setOffset((prev) => Math.max(prev - 1, 1))}
-          disabled={offset === 1}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            mb: 2,
+          }}
         >
-          Next
-        </Button>
+          <Button
+            variant="outlined"
+            onClick={() => setOffset((prev) => prev + 1)}
+          >
+            Previous
+          </Button>
+          <Box sx={{ display: "flex", alignItems: "center", mx: 2 }}>
+            Page {offset}
+          </Box>
+          <Button
+            variant="outlined"
+            onClick={() => setOffset((prev) => Math.max(prev - 1, 1))}
+            disabled={offset === 1}
+          >
+            Next
+          </Button>
+        </Box>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ width: "100%", height: "40vh" }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <TemperatureGraph data={graphData} isSmallScreen={isSmallScreen} />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <HumidityGraph data={graphData} isSmallScreen={isSmallScreen} />
+          </Box>
+        </Stack>
+
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ width: "100%", height: "40vh", mt: 2 }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <PressureGraph data={graphData} isSmallScreen={isSmallScreen} />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <GasResistanceGraph
+              data={graphData}
+              isSmallScreen={isSmallScreen}
+            />
+          </Box>
+        </Stack>
       </Box>
-      <Stack flexDirection="column" sx={{ minHeight: "60vh" }}>
-        <TemperatureGraph data={graphData} />
-        <HumidityGraph data={graphData} />
-        <PressureGraph data={graphData} />
-        <GasResistanceGraph data={graphData} />
-      </Stack>
-    </Box>
+    ) : (
+      // Mobile layout
+      <Box sx={{ width: "100%", p: 0 }}>
+        <h2 style={{ textAlign: "center" }}>Environmental Readings</h2>
+        <RealTime />
+
+        {/* Controls - full width */}
+        <Stack
+          direction="row"
+          justifyContent="center"
+          spacing={1}
+          sx={{ my: 2 }}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(1);
+              setOffset(1);
+            }}
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: isSmallScreen ? "0.7rem" : "1rem", // smaller font on mobile
+            }}
+          >
+            1 Day
+          </Button>
+          <Button
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: isSmallScreen ? "0.7rem" : "1rem", // smaller font on mobile
+            }}
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(7);
+              setOffset(1);
+            }}
+          >
+            1 Week
+          </Button>
+          <Button
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: isSmallScreen ? "0.7rem" : "1rem", // smaller font on mobile
+            }}
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(30);
+              setOffset(1);
+            }}
+          >
+            1 Month
+          </Button>
+          <Button
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: isSmallScreen ? "0.7rem" : "1rem", // smaller font on mobile
+            }}
+            variant="outlined"
+            onClick={() => {
+              setChosenDays(90);
+              setOffset(1);
+            }}
+          >
+            3 Months
+          </Button>
+        </Stack>
+
+        {/* Pagination Controls */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ my: 2 }}
+        >
+          <Button
+            sx={{ width: 100, fontSize: isSmallScreen ? "0.7rem" : "1rem" }}
+            variant="outlined"
+            onClick={() => setOffset((prev) => prev + 1)}
+          >
+            Previous
+          </Button>
+
+          <Button
+            sx={{ width: 100, fontSize: isSmallScreen ? "0.7rem" : "1rem" }}
+            variant="outlined"
+            onClick={() => setOffset((prev) => Math.max(prev - 1, 1))}
+            disabled={offset === 1}
+          >
+            Next
+          </Button>
+        </Stack>
+
+        {/* Tab Navigation for Graphs */}
+        <Tabs
+          value={tabIndex}
+          onChange={(e, newValue) => setTabIndex(newValue)}
+          variant="fullWidth"
+          sx={{ mb: 2 }}
+        >
+          <Tab
+            label="Temperature"
+            sx={{
+              fontSize: isSmallScreen ? "0.7rem" : "1rem",
+              color: "#818181ff",
+            }}
+          />
+          <Tab
+            label="Humidity"
+            sx={{
+              fontSize: isSmallScreen ? "0.7rem" : "1rem",
+              color: "#818181ff",
+            }}
+          />
+          <Tab
+            label="Pressure"
+            sx={{
+              fontSize: isSmallScreen ? "0.7rem" : "1rem",
+              color: "#818181ff",
+            }}
+          />
+          <Tab
+            label="Gas"
+            sx={{
+              fontSize: isSmallScreen ? "0.7rem" : "1rem",
+              color: "#818181ff",
+            }}
+          />
+        </Tabs>
+
+        <Box sx={{ width: "100%", height: "40vh", mt: 2 }}>
+          {tabIndex === 0 && (
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <TemperatureGraph
+                data={graphData}
+                isSmallScreen={isSmallScreen}
+              />
+            </Box>
+          )}
+          {tabIndex === 1 && (
+            <HumidityGraph data={graphData} isSmallScreen={isSmallScreen} />
+          )}
+          {tabIndex === 2 && (
+            <PressureGraph data={graphData} isSmallScreen={isSmallScreen} />
+          )}
+          {tabIndex === 3 && (
+            <GasResistanceGraph
+              data={graphData}
+              isSmallScreen={isSmallScreen}
+            />
+          )}
+        </Box>
+      </Box>
+    )
   );
 }
