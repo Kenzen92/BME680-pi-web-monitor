@@ -3,6 +3,16 @@
 A Raspberry Pi-based project for reading values from the BME680 sensor, storing them in a PostgreSQL database, and serving them through a Go-based server with a React frontend for monitoring and analysis over the historical values.
 
 ---
+## Screenshots
+
+Desktop UI <br>
+<img src="https://github.com/user-attachments/assets/f6855225-1e99-4575-a109-769701345268" width="800" />
+
+Mobile UI <br>
+<img src="https://github.com/user-attachments/assets/37f4bb65-bdf4-48eb-b399-5becddcd40e8" width="300" />
+
+
+
 
 ## Features
 
