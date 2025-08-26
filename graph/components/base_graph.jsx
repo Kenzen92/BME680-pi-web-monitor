@@ -11,7 +11,7 @@ import {
   Brush,
 } from "recharts";
 
-const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isFullScreen }) => {
+const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
   // Determine tick formatting based on the dataKey
   const tickFormatter = (value) => {
     if (dataKey === "pressure") {
@@ -26,23 +26,27 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isFullScreen }) => {
   };
 
   return (
-    <ResponsiveContainer
-      width={"100%"}
-      height={isFullScreen ? window.innerHeight * 0.8 : window.innerHeight * 0.32}
-    >
+    <ResponsiveContainer width={"100%"} height={window.innerHeight * 0.32}>
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="2 2" />
+        <CartesianGrid stroke="#cccccc65" strokeDasharray="1 5" />
         <XAxis dataKey="timestamp" tick={{ fontSize: 10 }} />
         <YAxis
           domain={["auto", "auto"]}
+          tickCount={12}
+          allowDecimals={true}
+          allowDataOverflow={true}
           tickFormatter={tickFormatter}
-          tickCount={15} // Ensures ticks are distributed evenly
-          interval="preserveStartEnd" // Ensures whole number ticks
+          tick={{ fontSize: 12 }}
         />
-        <Tooltip />
+        <Tooltip
+          formatter={(value) => tickFormatter(value)}
+          wrapperStyle={{ padding: 0 }}
+          contentStyle={{ padding: "0px 0px" }}
+        />
+
         <Legend />
         <Line
           type="monotone"
