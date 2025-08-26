@@ -28,13 +28,13 @@ Make sure the following are installed on your Raspberry Pi before proceeding:
    Download and extract the repository or clone it directly:
    ```bash
    git clone https://github.com/Kenzen92/BME680-pi-web-monitor.git
-   cd <repo-name>
+   cd BME680-PI-WEB-MONITOR
    ```
 2. **Run the Setup Script**:
    Execute the provided script to set up and install dependencies:
 
 ```bash
-./sensor.sh
+./install_sensor.sh
 ```
 
 3. **Access the Application**:
