@@ -11,7 +11,7 @@ import {
   Brush,
 } from "recharts";
 
-const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
+const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isSmallScreen }) => {
   // Determine tick formatting based on the dataKey
   const tickFormatter = (value) => {
     if (dataKey === "pressure") {
@@ -26,7 +26,10 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel }) => {
   };
 
   return (
-    <ResponsiveContainer width={"100%"} height={window.innerHeight * 0.32}>
+    <ResponsiveContainer
+      width={isSmallScreen ? window.innerWidth * 0.9 : window.innerWidth * 0.45}
+      height={window.innerHeight * 0.32}
+    >
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}

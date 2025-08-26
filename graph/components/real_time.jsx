@@ -6,7 +6,12 @@ const RealTime = () => {
   const [flash, setFlash] = useState(false);
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
-  const realTimeStyles = {display: "flex", flexDirection: "column", p: 2, justifyContent: "center"};
+  const realTimeStyles = {
+    display: "flex",
+    flexDirection: "column",
+    p: 2,
+    justifyContent: "center",
+  };
 
   useEffect(() => {
     const socket = new WebSocket(`ws://${pi_ip}:5000/ws`);
@@ -114,7 +119,7 @@ const RealTime = () => {
           </Box>
         </Box>
       ) : (
-        <Box sx={{ mt: "1em", height: "3em" }}>
+        <Box sx={{ mt: "1em", height: 150 }}>
           <Typography>Real-time data loading...</Typography>
         </Box>
       )}
