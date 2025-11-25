@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "postgres-sensor-db": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:postgres@192.168.1.69:5432/sensor_db"
+      ]
+    }
+  }
+}

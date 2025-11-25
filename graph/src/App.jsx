@@ -1,13 +1,14 @@
 import "./App.css";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { theme } from "./theme";
 import Graph from "../components/graph";
 
 function App() {
   return (
-    <>
-      <div>
-        <Graph />
-      </div>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Graph />
+    </ThemeProvider>
   );
 }
 
