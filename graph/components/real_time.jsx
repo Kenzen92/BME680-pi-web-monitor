@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Paper, Grid } from "@mui/material";
 
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);
   const [flash, setFlash] = useState(false);
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
-
-  const realTimeStyles = {
-    display: "flex",
-    flexDirection: "column",
-    p: 2,
-    justifyContent: "center",
-  };
 
   useEffect(() => {
     const socket = new WebSocket(`ws://${pi_ip}:5000/ws`);
@@ -21,7 +14,7 @@ const RealTime = () => {
       setSensorData(parsedData);
 
       setFlash(true);
-      setTimeout(() => setFlash(false), 300); // Flash lasts 300ms
+      setTimeout(() => setFlash(false), 300);
     };
 
     socket.onerror = (error) => {
@@ -29,101 +22,81 @@ const RealTime = () => {
     };
 
     return () => socket.close();
-  }, []);
+  }, [pi_ip]);
+
+  if (!sensorData) {
+    return (
+      <Box sx={{ py: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Real-time data loading...
+        </Typography>
+      </Box>
+    );
+  }
+
+  const readings = [
+    {
+      label: "Temperature",
+      value: `${sensorData.temperature.toFixed(1)}°C`,
+      color: "#8884d8",
+    },
+    {
+      label: "Humidity",
+      value: `${sensorData.humidity.toFixed(1)}%`,
+      color: "#82ca9d",
+    },
+    {
+      label: "Pressure",
+      value: `${sensorData.pressure.toFixed(1)} hPa`,
+      color: "#ffc658",
+    },
+    {
+      label: "Gas",
+      value: `${sensorData.gas.toFixed(0)} Ω`,
+      color: "#cc5500",
+    },
+  ];
 
   return (
-    <Box>
-      {sensorData ? (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            flexWrap: "wrap",
-            marginLeft: "auto",
-            marginRight: "auto",
-            alignItems: "center",
-            padding: 2,
-            maxWidth: "40rem",
-          }}
-        >
-          <Typography sx={{ alignContent: "center" }}>
-            Current Values
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
-            <Box sx={{ ...realTimeStyles }}>
-              <Typography>Temperature</Typography>
+    <Paper
+      elevation={1}
+      sx={{
+        p: 2,
+        bgcolor: "background.paper",
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <Typography
+        variant="subtitle2"
+        sx={{ mb: 1, color: "text.secondary", textAlign: "center" }}
+      >
+        Current Values
+      </Typography>
+      <Grid container spacing={2}>
+        {readings.map((reading) => (
+          <Grid item xs={6} sm={3} key={reading.label}>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                {reading.label}
+              </Typography>
               <Typography
+                variant="h6"
                 sx={{
                   fontWeight: "bold",
-                  color: flash
-                    ? "rgb(255, 255, 255)"
-                    : "rgba(255, 255, 255, 0.7)",
-                  transition: "background-color 0.3s ease-in-out",
+                  color: flash ? reading.color : "text.primary",
+                  transition: "color 0.3s ease-in-out",
+                  fontSize: { xs: "0.9rem", sm: "1.1rem" },
                 }}
               >
-                {sensorData.temperature.toFixed(1) + "°" + "C"}
+                {reading.value}
               </Typography>
             </Box>
-
-            <Box sx={{ ...realTimeStyles }}>
-              <Typography>Humidity</Typography>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  color: flash
-                    ? "rgb(255, 255, 255)"
-                    : "rgba(255, 255, 255, 0.7)",
-                  transition: "background-color 0.3s ease-in-out",
-                }}
-              >
-                {sensorData.humidity.toFixed(1) + "%"}
-              </Typography>
-            </Box>
-
-            <Box sx={{ ...realTimeStyles }}>
-              <Typography>Air Pressure</Typography>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  color: flash
-                    ? "rgb(255, 255, 255)"
-                    : "rgba(255, 255, 255, 0.7)",
-                  transition: "background-color 0.3s ease-in-out",
-                }}
-              >
-                {sensorData.pressure.toFixed(1) + "hPa"}
-              </Typography>
-            </Box>
-
-            <Box sx={{ ...realTimeStyles }}>
-              <Typography>Air Resistance</Typography>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  color: flash
-                    ? "rgb(255, 255, 255)"
-                    : "rgba(255, 255, 255, 0.7)",
-                  transition: "background-color 0.3s ease-in-out",
-                }}
-              >
-                {sensorData.gas.toFixed(1) + "Ω"}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      ) : (
-        <Box sx={{ mt: "1em", height: 150 }}>
-          <Typography>Real-time data loading...</Typography>
-        </Box>
-      )}
-    </Box>
+          </Grid>
+        ))}
+      </Grid>
+    </Paper>
   );
 };
 
