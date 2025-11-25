@@ -210,21 +210,23 @@ func main() {
 		}
 
 		// Get granularity interval for query
-		var truncateInterval string
+		var truncateExpression string
 		var intervalDuration time.Duration
 
 		switch granularity {
 		case "5min":
-			truncateInterval = "5 minutes"
+			// For 5-minute intervals, truncate to 5-minute buckets
+			truncateExpression = "to_timestamp(floor(extract(epoch from timestamp) / 300) * 300)"
 			intervalDuration = 5 * time.Minute
 		case "20min":
-			truncateInterval = "20 minutes"
+			// For 20-minute intervals, truncate to 20-minute buckets
+			truncateExpression = "to_timestamp(floor(extract(epoch from timestamp) / 1200) * 1200)"
 			intervalDuration = 20 * time.Minute
 		case "hour":
-			truncateInterval = "hour"
+			truncateExpression = "DATE_TRUNC('hour', timestamp)"
 			intervalDuration = time.Hour
 		case "day":
-			truncateInterval = "day"
+			truncateExpression = "DATE_TRUNC('day', timestamp)"
 			intervalDuration = 24 * time.Hour
 		}
 
@@ -235,7 +237,7 @@ func main() {
 		if useTimeFilter {
 			sqlQuery = fmt.Sprintf(`
 				SELECT
-					DATE_TRUNC('%s', timestamp) AS time_slot,
+					%s AS time_slot,
 					AVG(temperature) AS avg_temperature,
 					AVG(humidity) AS avg_humidity,
 					AVG(pressure) AS avg_pressure,
@@ -243,20 +245,20 @@ func main() {
 				FROM environmental_readings
 				WHERE timestamp >= $1 AND timestamp < $2
 				GROUP BY time_slot
-				ORDER BY time_slot`, truncateInterval)
+				ORDER BY time_slot`, truncateExpression)
 			queryArgs = []interface{}{startTime, endTime}
 		} else {
 			// No time filter - get all data
 			sqlQuery = fmt.Sprintf(`
 				SELECT
-					DATE_TRUNC('%s', timestamp) AS time_slot,
+					%s AS time_slot,
 					AVG(temperature) AS avg_temperature,
 					AVG(humidity) AS avg_humidity,
 					AVG(pressure) AS avg_pressure,
 					AVG(gas) AS avg_gas
 				FROM environmental_readings
 				GROUP BY time_slot
-				ORDER BY time_slot`, truncateInterval)
+				ORDER BY time_slot`, truncateExpression)
 			queryArgs = []interface{}{}
 		}
 

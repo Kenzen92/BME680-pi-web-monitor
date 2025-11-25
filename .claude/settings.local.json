@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(ssh pi:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
