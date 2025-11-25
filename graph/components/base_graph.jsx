@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Brush,
 } from "recharts";
+import { formatTooltipTimestamp } from "../src/utils/timeUtils.js";
 
 const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isSmallScreen, isFullscreen }) => {
   // Determine tick formatting based on the dataKey
@@ -23,6 +24,35 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isSmallScreen, isFullscr
     } else {
       return value.toFixed(0);
     }
+  };
+
+  // Custom tooltip component that has access to the actual payload data
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div
+          style={{
+            padding: "8px 12px",
+            backgroundColor: "#2d2d2d",
+            border: "1px solid #64b5f6",
+            borderRadius: 8,
+          }}
+        >
+          <p style={{ margin: "0 0 4px 0", color: "#64b5f6" }}>
+            {data.originalTimestamp
+              ? formatTooltipTimestamp(data.originalTimestamp)
+              : data.timestamp}
+          </p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ margin: 0, color: entry.color }}>
+              {`${entry.name}: ${tickFormatter(entry.value)}`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -51,16 +81,7 @@ const BaseGraph = ({ data, dataKey, stroke, yAxisLabel, isSmallScreen, isFullscr
           tick={{ fontSize: isFullscreen ? 14 : 12 }}
           stroke="#64b5f6"
         />
-        <Tooltip
-          formatter={(value) => tickFormatter(value)}
-          wrapperStyle={{ padding: 0 }}
-          contentStyle={{
-            padding: "8px 12px",
-            backgroundColor: "#2d2d2d",
-            border: "1px solid #64b5f6",
-            borderRadius: 8,
-          }}
-        />
+        <Tooltip content={<CustomTooltip />} />
         <Legend
           wrapperStyle={{
             paddingTop: isFullscreen ? "20px" : "10px",

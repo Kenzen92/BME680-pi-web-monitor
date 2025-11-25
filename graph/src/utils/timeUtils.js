@@ -3,32 +3,32 @@ export const TIME_RANGES = {
   DAY: {
     label: "1 Day",
     hours: 24,
-    granularity: "5min",
+    granularity: "hour",
   },
   WEEK: {
     label: "1 Week",
     hours: 24 * 7,
-    granularity: "20min",
+    granularity: "hour",
   },
   MONTH: {
     label: "1 Month",
     hours: 24 * 30,
-    granularity: "hour",
+    granularity: "day",
   },
   THREE_MONTHS: {
     label: "3 Months",
     hours: 24 * 90,
-    granularity: "hour",
+    granularity: "day",
   },
   YEAR: {
     label: "1 Year",
     hours: 24 * 365,
-    granularity: "hour",
+    granularity: "day",
   },
   ALL: {
     label: "All",
     hours: null, // No time filter
-    granularity: "hour",
+    granularity: "day",
   },
 };
 
@@ -94,16 +94,19 @@ export function formatTimestamp(timestamp, granularity) {
   switch (granularity) {
     case "5min":
     case "20min":
-      return date.toLocaleTimeString([], {
+      // Show time only for short ranges
+      return date.toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       });
     case "hour":
-      return date.toLocaleTimeString([], {
+      // Show time only for short ranges (up to 48 hours)
+      return date.toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       });
     case "day":
+      // Show date only for longer ranges
       return date.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -111,4 +114,20 @@ export function formatTimestamp(timestamp, granularity) {
     default:
       return date.toLocaleString();
   }
+}
+
+/**
+ * Format timestamp for tooltip display (always shows full date and time)
+ * @param {string} timestamp - RFC3339 timestamp
+ * @returns {string} Formatted timestamp
+ */
+export function formatTooltipTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }

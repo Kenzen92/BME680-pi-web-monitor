@@ -19,6 +19,8 @@ import {
   useTheme,
   useMediaQuery,
   Container,
+  CircularProgress,
+  Backdrop,
 } from "@mui/material";
 import {
   Fullscreen as FullscreenIcon,
@@ -66,17 +68,22 @@ export default function Graph() {
   const [customGranularity, setCustomGranularity] = useState("hour");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenGraphIndex, setFullscreenGraphIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
   useEffect(() => {
     const fetchGraphData = async () => {
+      setIsLoading(true);
       try {
         let apiUrl;
         const baseUrl = `http://${pi_ip}:5000/readings`;
 
         if (selectedRange === "CUSTOM") {
-          if (!customStartDate || !customEndDate) return;
+          if (!customStartDate || !customEndDate) {
+            setIsLoading(false);
+            return;
+          }
           const params = {
             start: toRFC3339(new Date(customStartDate)),
             end: toRFC3339(new Date(customEndDate)),
@@ -119,15 +126,26 @@ export default function Graph() {
               ? Number(item.gas)
               : null,
           timestamp: formatTimestamp(item.timestamp, granularity),
+          originalTimestamp: item.timestamp, // Keep original for tooltip
         }));
         setGraphData(formattedData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchGraphData();
-  }, [selectedRange, granularity, offset, customStartDate, customEndDate, customGranularity, pi_ip]);
+  }, [
+    selectedRange,
+    granularity,
+    offset,
+    customStartDate,
+    customEndDate,
+    customGranularity,
+    pi_ip,
+  ]);
 
   const handleRangeChange = (range) => {
     setSelectedRange(range);
@@ -191,7 +209,10 @@ export default function Graph() {
     <Box sx={{ mb: 2 }}>
       {selectedRange !== "CUSTOM" && (
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-          <FormControl sx={{ minWidth: isMobile ? 150 : 200 }} size={isMobile ? "small" : "medium"}>
+          <FormControl
+            sx={{ minWidth: isMobile ? 150 : 200 }}
+            size={isMobile ? "small" : "medium"}
+          >
             <InputLabel>Granularity</InputLabel>
             <Select
               value={granularity}
@@ -282,10 +303,15 @@ export default function Graph() {
                 size="small"
                 sx={{
                   p: 0.5,
-                  color: index === fullscreenGraphIndex ? "primary.main" : "text.secondary",
+                  color:
+                    index === fullscreenGraphIndex
+                      ? "primary.main"
+                      : "text.secondary",
                 }}
               >
-                <DotIcon fontSize={index === fullscreenGraphIndex ? "medium" : "small"} />
+                <DotIcon
+                  fontSize={index === fullscreenGraphIndex ? "medium" : "small"}
+                />
               </IconButton>
             ))}
           </Box>
@@ -311,15 +337,27 @@ export default function Graph() {
               transform: "translateY(-50%)",
               bgcolor: "background.paper",
               "&:hover": { bgcolor: "action.hover" },
-              zIndex: 1,
+              zIndex: 10,
             }}
             size="large"
           >
             <ChevronLeftIcon fontSize="large" />
           </IconButton>
 
-          <Box sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <CurrentGraph data={graphData} isSmallScreen={false} isFullscreen={true} />
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CurrentGraph
+              data={graphData}
+              isSmallScreen={false}
+              isFullscreen={true}
+            />
           </Box>
 
           <IconButton
@@ -331,7 +369,7 @@ export default function Graph() {
               transform: "translateY(-50%)",
               bgcolor: "background.paper",
               "&:hover": { bgcolor: "action.hover" },
-              zIndex: 1,
+              zIndex: 10,
             }}
             size="large"
           >
@@ -370,49 +408,125 @@ export default function Graph() {
       </Tabs>
 
       <Box sx={{ width: "100%", minHeight: "50vh" }}>
-        {GRAPH_COMPONENTS.map((graph, index) => (
-          tabIndex === index && (
-            <Box key={graph.key}>
-              <graph.component data={graphData} isSmallScreen={true} />
-            </Box>
-          )
-        ))}
+        {GRAPH_COMPONENTS.map(
+          (graph, index) =>
+            tabIndex === index && (
+              <Box key={graph.key}>
+                <graph.component data={graphData} isSmallScreen={true} />
+              </Box>
+            )
+        )}
       </Box>
     </Container>
   );
 
   const renderDesktopLayout = () => {
-    const graphHeight = isTablet ? "45vh" : "40vh";
-    const minGraphHeight = "300px";
+    const graphHeight = isTablet ? "45vh" : "42vh";
+    const minGraphHeight = "320px";
 
     return (
-      <Container maxWidth="xl" sx={{ py: 2 }}>
+      <Container maxWidth="xxl" sx={{ py: 2 }}>
+        {/* Compact header with title, real-time data, and fullscreen button */}
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
+            alignItems: "center",
             mb: 2,
-            flexWrap: "wrap",
             gap: 2,
           }}
         >
-          <Box sx={{ flex: 1, minWidth: 300 }}>
-            <h2 style={{ margin: 0 }}>Environmental Readings</h2>
-          </Box>
+          <h2 style={{ margin: 0 }}>Environmental Readings</h2>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <RealTime />
-            <IconButton onClick={handleFullscreenToggle} color="primary" size="large">
-              <FullscreenIcon />
-            </IconButton>
           </Box>
         </Box>
 
-        <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: "background.paper" }}>
-          {renderTimeRangeButtons()}
-          {renderControls()}
+        {/* Compact single-line controls */}
+        <Paper
+          elevation={2}
+          sx={{ p: 1.5, mb: 2, bgcolor: "background.paper" }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 1.5,
+            }}
+          >
+            {/* Time range buttons */}
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {Object.entries(TIME_RANGES).map(([key, value]) => (
+                <Button
+                  key={key}
+                  variant={selectedRange === key ? "contained" : "outlined"}
+                  onClick={() => handleRangeChange(key)}
+                  size="small"
+                >
+                  {value.label}
+                </Button>
+              ))}
+              <Button
+                variant={selectedRange === "CUSTOM" ? "contained" : "outlined"}
+                onClick={() => setCustomDateOpen(true)}
+                size="small"
+              >
+                Custom
+              </Button>
+            </Box>
+
+            {/* Granularity and pagination on the right */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {selectedRange !== "CUSTOM" && (
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>Granularity</InputLabel>
+                  <Select
+                    value={granularity}
+                    label="Granularity"
+                    onChange={(e) => setGranularity(e.target.value)}
+                  >
+                    {GRANULARITY_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+              {selectedRange !== "ALL" && selectedRange !== "CUSTOM" && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <IconButton
+                    onClick={() => setOffset((prev) => prev + 1)}
+                    size="small"
+                    color="primary"
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                  <Chip label={`${offset}`} color="primary" size="small" />
+                  <IconButton
+                    onClick={() => setOffset((prev) => Math.max(prev - 1, 1))}
+                    disabled={offset === 1}
+                    size="small"
+                    color="primary"
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={handleFullscreenToggle}
+                    color="primary"
+                    size="large"
+                  >
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Paper>
 
+        {/* Graph grid */}
         <Box
           sx={{
             display: "grid",
@@ -444,13 +558,37 @@ export default function Graph() {
 
   return (
     <>
-      {isFullscreen ? renderFullscreenMode() : isMobile ? renderMobileLayout() : renderDesktopLayout()}
+      {/* Loading Spinner */}
+      <Backdrop
+        open={isLoading}
+        sx={{
+          color: "#64b5f6",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgba(30, 30, 30, 0.8)",
+        }}
+      >
+        <CircularProgress color="inherit" size={60} />
+      </Backdrop>
+
+      {isFullscreen
+        ? renderFullscreenMode()
+        : isMobile
+        ? renderMobileLayout()
+        : renderDesktopLayout()}
 
       {/* Custom Date Range Dialog */}
       <Dialog open={customDateOpen} onClose={() => setCustomDateOpen(false)}>
         <DialogTitle>Custom Date Range</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1, minWidth: 300 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              mt: 1,
+              minWidth: 300,
+            }}
+          >
             <TextField
               label="Start Date"
               type="datetime-local"
