@@ -140,25 +140,6 @@ func main() {
 
 	// HTTP handler to retrieve and serve readings as JSON
 	http.HandleFunc("/readings", func(w http.ResponseWriter, r *http.Request) {
-		// Get query parameters
-		query := r.URL.Query()
-
-		// Extract the 'days' parameter (as string)
-		daysParam := query.Get("days")
-
-		// Default to 7 days if not provided
-		numberOfDays := 7
-
-		if daysParam != "" {
-			// Convert the 'days' parameter to an integer
-			days, err := strconv.Atoi(daysParam)
-			if err != nil {
-				http.Error(w, "Invalid 'days' query parameter", http.StatusBadRequest)
-				return
-			}
-			numberOfDays = days
-		}
-
 		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -169,49 +150,118 @@ func main() {
 			return
 		}
 
-		// Get the current date and time
-		currentTime := time.Now().UTC()
-		endTime := time.Now().UTC()
-		startTime := currentTime
-		offset := query.Get("offset") // offset determines pagination of graphs by scrolling back further
+		// Get query parameters
+		query := r.URL.Query()
 
-		if offset != "" {
-			multiplier, err := strconv.Atoi(offset)
+		// Extract parameters
+		startParam := query.Get("start")
+		endParam := query.Get("end")
+		latestParam := query.Get("latest")
+		granularity := query.Get("granularity")
+		limitParam := query.Get("limit")
+		offsetParam := query.Get("offset")
+
+		// Default granularity to hour
+		if granularity == "" {
+			granularity = "hour"
+		}
+
+		// Validate granularity
+		validGranularities := map[string]bool{
+			"5min":  true,
+			"20min": true,
+			"hour":  true,
+			"day":   true,
+		}
+		if !validGranularities[granularity] {
+			http.Error(w, "Invalid granularity. Must be one of: 5min, 20min, hour, day", http.StatusBadRequest)
+			return
+		}
+
+		var startTime, endTime time.Time
+		var err error
+		var useTimeFilter bool = true
+
+		// Determine time range
+		if startParam != "" && endParam != "" {
+			// Explicit date range
+			startTime, err = time.Parse(time.RFC3339, startParam)
 			if err != nil {
-				http.Error(w, "Invalid 'offset' query parameter", http.StatusBadRequest)
+				http.Error(w, "Invalid 'start' parameter. Use RFC3339 format (e.g., 2024-01-01T00:00:00Z)", http.StatusBadRequest)
 				return
 			}
-			// multiply start time back by the offset
-			// Calculate start time based on the number of days
-			startDay := numberOfDays * multiplier
-			startTime = currentTime.AddDate(0, 0, -startDay).Truncate(time.Hour)
-			endDay := numberOfDays * (multiplier - 1)
-			// set the endtime to one unit beyond the start time
-			endTime = currentTime.AddDate(0, 0, -endDay).Truncate(time.Hour) // Default endtime to current time, this is used if there's no offset
-
+			endTime, err = time.Parse(time.RFC3339, endParam)
+			if err != nil {
+				http.Error(w, "Invalid 'end' parameter. Use RFC3339 format (e.g., 2024-01-01T23:59:59Z)", http.StatusBadRequest)
+				return
+			}
+		} else if latestParam != "" {
+			// Latest N hours
+			hours, err := strconv.Atoi(latestParam)
+			if err != nil || hours <= 0 {
+				http.Error(w, "Invalid 'latest' parameter. Must be a positive integer (hours)", http.StatusBadRequest)
+				return
+			}
+			endTime = time.Now().UTC()
+			startTime = endTime.Add(-time.Duration(hours) * time.Hour)
 		} else {
-			startTime = currentTime.AddDate(0, 0, -numberOfDays).Truncate(time.Hour)
+			// No time filter - return all data
+			useTimeFilter = false
 		}
 
-		// Prepare hourly intervals
-		intervals := []time.Time{}
-		for t := startTime; t.Before(endTime); t = t.Add(time.Hour) {
-			intervals = append(intervals, t)
+		// Get granularity interval for query
+		var truncateInterval string
+		var intervalDuration time.Duration
+
+		switch granularity {
+		case "5min":
+			truncateInterval = "5 minutes"
+			intervalDuration = 5 * time.Minute
+		case "20min":
+			truncateInterval = "20 minutes"
+			intervalDuration = 20 * time.Minute
+		case "hour":
+			truncateInterval = "hour"
+			intervalDuration = time.Hour
+		case "day":
+			truncateInterval = "day"
+			intervalDuration = 24 * time.Hour
 		}
 
-		// Query the database to get readings within the timeframe
-		rows, err := db.Query(`
-			SELECT 
-				DATE_TRUNC('hour', timestamp) AS hour_slot,
-				AVG(temperature) AS avg_temperature,
-				AVG(humidity) AS avg_humidity,
-				AVG(pressure) AS avg_pressure,
-				AVG(gas) AS avg_gas
-			FROM environmental_readings
-			WHERE timestamp >= $1 AND timestamp < $2
-			GROUP BY hour_slot
-			ORDER BY hour_slot`,
-			startTime, endTime)
+		// Build SQL query based on parameters
+		var sqlQuery string
+		var queryArgs []interface{}
+
+		if useTimeFilter {
+			sqlQuery = fmt.Sprintf(`
+				SELECT
+					DATE_TRUNC('%s', timestamp) AS time_slot,
+					AVG(temperature) AS avg_temperature,
+					AVG(humidity) AS avg_humidity,
+					AVG(pressure) AS avg_pressure,
+					AVG(gas) AS avg_gas
+				FROM environmental_readings
+				WHERE timestamp >= $1 AND timestamp < $2
+				GROUP BY time_slot
+				ORDER BY time_slot`, truncateInterval)
+			queryArgs = []interface{}{startTime, endTime}
+		} else {
+			// No time filter - get all data
+			sqlQuery = fmt.Sprintf(`
+				SELECT
+					DATE_TRUNC('%s', timestamp) AS time_slot,
+					AVG(temperature) AS avg_temperature,
+					AVG(humidity) AS avg_humidity,
+					AVG(pressure) AS avg_pressure,
+					AVG(gas) AS avg_gas
+				FROM environmental_readings
+				GROUP BY time_slot
+				ORDER BY time_slot`, truncateInterval)
+			queryArgs = []interface{}{}
+		}
+
+		// Query the database
+		rows, err := db.Query(sqlQuery, queryArgs...)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to query database", http.StatusInternalServerError)
@@ -219,39 +269,86 @@ func main() {
 		}
 		defer rows.Close()
 
-		// Map results by hour for easier processing
-		dataByHour := map[string]Reading{}
+		// Collect results
+		var results []Reading
+		dataBySlot := map[string]Reading{}
+
 		for rows.Next() {
-			var hourSlot time.Time
+			var timeSlot time.Time
 			var temp, humidity, pressure, gas sql.NullFloat64
-			err := rows.Scan(&hourSlot, &temp, &humidity, &pressure, &gas)
+			err := rows.Scan(&timeSlot, &temp, &humidity, &pressure, &gas)
 			if err != nil {
 				http.Error(w, "Failed to scan row", http.StatusInternalServerError)
 				return
 			}
-			dataByHour[hourSlot.Format(time.RFC3339)] = Reading{
-				Timestamp:   hourSlot.Format(time.RFC3339),
+
+			reading := Reading{
+				Timestamp:   timeSlot.Format(time.RFC3339),
 				Temperature: nullableFloatToPointer(temp),
 				Humidity:    nullableFloatToPointer(humidity),
 				Pressure:    nullableFloatToPointer(pressure),
 				Gas:         nullableFloatToPointer(gas),
 			}
+
+			if useTimeFilter {
+				// Store in map for filling gaps
+				dataBySlot[timeSlot.Format(time.RFC3339)] = reading
+			} else {
+				// No gaps to fill for all data
+				results = append(results, reading)
+			}
 		}
 
-		// Generate the final results for each hour slot
-		var results []Reading
-		for _, t := range intervals {
-			timestamp := t.Format(time.RFC3339)
-			if reading, exists := dataByHour[timestamp]; exists {
-				results = append(results, reading)
+		// Fill gaps for time-filtered queries
+		if useTimeFilter {
+			intervals := []time.Time{}
+			for t := startTime; t.Before(endTime); t = t.Add(intervalDuration) {
+				intervals = append(intervals, t)
+			}
+
+			for _, t := range intervals {
+				timestamp := t.Format(time.RFC3339)
+				if reading, exists := dataBySlot[timestamp]; exists {
+					results = append(results, reading)
+				} else {
+					results = append(results, Reading{
+						Timestamp:   timestamp,
+						Temperature: nil,
+						Humidity:    nil,
+						Pressure:    nil,
+						Gas:         nil,
+					})
+				}
+			}
+		}
+
+		// Apply limit and offset for pagination
+		if limitParam != "" {
+			limit, err := strconv.Atoi(limitParam)
+			if err != nil || limit <= 0 {
+				http.Error(w, "Invalid 'limit' parameter. Must be a positive integer", http.StatusBadRequest)
+				return
+			}
+
+			offset := 0
+			if offsetParam != "" {
+				offset, err = strconv.Atoi(offsetParam)
+				if err != nil || offset < 0 {
+					http.Error(w, "Invalid 'offset' parameter. Must be a non-negative integer", http.StatusBadRequest)
+					return
+				}
+			}
+
+			// Apply pagination
+			start := offset
+			end := offset + limit
+			if start > len(results) {
+				results = []Reading{}
 			} else {
-				results = append(results, Reading{
-					Timestamp:   timestamp,
-					Temperature: nil,
-					Humidity:    nil,
-					Pressure:    nil,
-					Gas:         nil,
-				})
+				if end > len(results) {
+					end = len(results)
+				}
+				results = results[start:end]
 			}
 		}
 
