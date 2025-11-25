@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, Grid } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import {
   Thermostat as ThermostatIcon,
   WaterDrop as WaterDropIcon,
@@ -30,38 +30,28 @@ const RealTime = () => {
     return () => socket.close();
   }, [pi_ip]);
 
-  if (!sensorData) {
-    return (
-      <Box sx={{ py: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Real-time data loading...
-        </Typography>
-      </Box>
-    );
-  }
-
   const readings = [
     {
       label: "Temperature",
-      value: `${sensorData.temperature.toFixed(1)}°C`,
+      value: sensorData ? `${sensorData.temperature.toFixed(1)}°C` : "---",
       color: "#8884d8",
       icon: ThermostatIcon,
     },
     {
       label: "Humidity",
-      value: `${sensorData.humidity.toFixed(1)}%`,
+      value: sensorData ? `${sensorData.humidity.toFixed(1)}%` : "---",
       color: "#82ca9d",
       icon: WaterDropIcon,
     },
     {
       label: "Pressure",
-      value: `${sensorData.pressure.toFixed(1)} hPa`,
+      value: sensorData ? `${sensorData.pressure.toFixed(1)} hPa` : "---",
       color: "#ffc658",
       icon: CompressIcon,
     },
     {
       label: "Gas",
-      value: `${sensorData.gas.toFixed(0)} Ω`,
+      value: sensorData ? `${sensorData.gas.toFixed(0)} Ω` : "---",
       color: "#cc5500",
       icon: CloudIcon,
     },
@@ -71,35 +61,53 @@ const RealTime = () => {
     <Paper
       elevation={1}
       sx={{
-        p: 2,
+        p: { xs: 1, sm: 2 },
         bgcolor: "background.paper",
         borderRadius: 2,
         border: "1px solid",
         borderColor: "divider",
+        maxWidth: "100%",
       }}
     >
-      <Grid container spacing={2}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: { xs: 1, sm: 2 },
+          width: "100%",
+        }}
+      >
         {readings.map((reading) => {
           const IconComponent = reading.icon;
           return (
-            <Grid item xs={6} sm={3} key={reading.label}>
+            <Box
+              key={reading.label}
+              sx={{
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "1 1 calc(25% - 12px)" },
+                minWidth: { xs: "120px", sm: "0" },
+              }}
+            >
               <Box
                 sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                   textAlign: "center",
-                  p: 2,
+                  p: { xs: 1, sm: 1 },
                   borderRadius: 2,
                   bgcolor: `${reading.color}15`,
                   border: "2px solid",
                   borderColor: reading.color,
                   transition: "all 0.3s ease-in-out",
                   transform: flash ? "scale(1.05)" : "scale(1)",
+                  height: "100%",
                 }}
               >
                 <IconComponent
                   sx={{
-                    fontSize: 40,
+                    fontSize: { xs: 28, sm: 32, md: 40 },
                     color: reading.color,
-                    mb: 1,
+                    mb: { xs: 0.5, sm: 1 },
                   }}
                 />
                 <Typography
@@ -109,6 +117,7 @@ const RealTime = () => {
                     color: "text.secondary",
                     mb: 0.5,
                     fontWeight: 500,
+                    fontSize: { xs: "0.65rem", sm: "0.75rem", md: "0.85rem" },
                   }}
                 >
                   {reading.label}
@@ -118,18 +127,17 @@ const RealTime = () => {
                   sx={{
                     fontWeight: "bold",
                     color: reading.color,
-                    fontSize: { xs: "1rem", sm: "1.25rem" },
-                    minWidth: "100px",
-                    display: "inline-block",
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", md: "1rem" },
+                    lineHeight: 1.2,
                   }}
                 >
                   {reading.value}
                 </Typography>
               </Box>
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
     </Paper>
   );
 };

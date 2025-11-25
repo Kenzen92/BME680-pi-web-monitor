@@ -403,15 +403,15 @@ export default function Graph() {
         sx={{ mb: 2 }}
       >
         {GRAPH_COMPONENTS.map((graph) => (
-          <Tab key={graph.key} label={graph.name} />
+          <Tab key={graph.key} label={graph.name} sx={{ fontSize: "0.6rem" }} />
         ))}
       </Tabs>
 
-      <Box sx={{ width: "100%", minHeight: "50vh" }}>
+      <Box sx={{ width: "100%", height: "400px", minHeight: "300px" }}>
         {GRAPH_COMPONENTS.map(
           (graph, index) =>
             tabIndex === index && (
-              <Box key={graph.key}>
+              <Box key={graph.key} sx={{ width: "100%", height: "100%" }}>
                 <graph.component data={graphData} isSmallScreen={true} />
               </Box>
             )
