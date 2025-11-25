@@ -3,7 +3,10 @@
     "allow": [
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(ssh pi:*)"
+      "Bash(ssh pi:*)",
+      "Bash(mcp list:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp list:*)"
     ],
     "deny": [],
     "ask": []
