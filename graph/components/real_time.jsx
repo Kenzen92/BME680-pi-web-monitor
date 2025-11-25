@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Grid } from "@mui/material";
+import {
+  Thermostat as ThermostatIcon,
+  WaterDrop as WaterDropIcon,
+  Compress as CompressIcon,
+  Cloud as CloudIcon,
+} from "@mui/icons-material";
 
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);
@@ -39,21 +45,25 @@ const RealTime = () => {
       label: "Temperature",
       value: `${sensorData.temperature.toFixed(1)}°C`,
       color: "#8884d8",
+      icon: ThermostatIcon,
     },
     {
       label: "Humidity",
       value: `${sensorData.humidity.toFixed(1)}%`,
       color: "#82ca9d",
+      icon: WaterDropIcon,
     },
     {
       label: "Pressure",
       value: `${sensorData.pressure.toFixed(1)} hPa`,
       color: "#ffc658",
+      icon: CompressIcon,
     },
     {
       label: "Gas",
       value: `${sensorData.gas.toFixed(0)} Ω`,
       color: "#cc5500",
+      icon: CloudIcon,
     },
   ];
 
@@ -68,33 +78,57 @@ const RealTime = () => {
         borderColor: "divider",
       }}
     >
-      <Typography
-        variant="subtitle2"
-        sx={{ mb: 1, color: "text.secondary", textAlign: "center" }}
-      >
-        Current Values
-      </Typography>
       <Grid container spacing={2}>
-        {readings.map((reading) => (
-          <Grid item xs={6} sm={3} key={reading.label}>
-            <Box sx={{ textAlign: "center" }}>
-              <Typography variant="caption" color="text.secondary">
-                {reading.label}
-              </Typography>
-              <Typography
-                variant="h6"
+        {readings.map((reading) => {
+          const IconComponent = reading.icon;
+          return (
+            <Grid item xs={6} sm={3} key={reading.label}>
+              <Box
                 sx={{
-                  fontWeight: "bold",
-                  color: flash ? reading.color : "text.primary",
-                  transition: "color 0.3s ease-in-out",
-                  fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: `${reading.color}15`,
+                  border: "2px solid",
+                  borderColor: reading.color,
+                  transition: "all 0.3s ease-in-out",
+                  transform: flash ? "scale(1.05)" : "scale(1)",
                 }}
               >
-                {reading.value}
-              </Typography>
-            </Box>
-          </Grid>
-        ))}
+                <IconComponent
+                  sx={{
+                    fontSize: 40,
+                    color: reading.color,
+                    mb: 1,
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "text.secondary",
+                    mb: 0.5,
+                    fontWeight: 500,
+                  }}
+                >
+                  {reading.label}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color: reading.color,
+                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                    minWidth: "100px",
+                    display: "inline-block",
+                  }}
+                >
+                  {reading.value}
+                </Typography>
+              </Box>
+            </Grid>
+          );
+        })}
       </Grid>
     </Paper>
   );
