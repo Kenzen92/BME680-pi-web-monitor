@@ -303,9 +303,30 @@ func main() {
 
 		// Fill gaps for time-filtered queries
 		if useTimeFilter {
+			// Helper function to truncate time to the appropriate granularity
+			truncateTime := func(t time.Time) time.Time {
+				switch granularity {
+				case "5min":
+					return time.Unix((t.Unix()/300)*300, 0).UTC()
+				case "20min":
+					return time.Unix((t.Unix()/1200)*1200, 0).UTC()
+				case "hour":
+					return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, time.UTC)
+				case "day":
+					return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+				default:
+					return t
+				}
+			}
+
+			// Truncate start time to align with database buckets
+			currentTime := truncateTime(startTime)
+			truncatedEnd := truncateTime(endTime)
+
 			intervals := []time.Time{}
-			for t := startTime; t.Before(endTime); t = t.Add(intervalDuration) {
-				intervals = append(intervals, t)
+			for currentTime.Before(truncatedEnd) || currentTime.Equal(truncatedEnd) {
+				intervals = append(intervals, currentTime)
+				currentTime = currentTime.Add(intervalDuration)
 			}
 
 			for _, t := range intervals {
