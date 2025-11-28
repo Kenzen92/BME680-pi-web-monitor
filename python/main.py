@@ -80,7 +80,75 @@ def main():
 
         client = mqtt.Client()
         client.connect("localhost", 1883, 60)
-        print("MQTT client connected")
+        client.loop_start()  # Start the network loop
+        print("MQTT client connected", client)
+
+        # Configure MQTT Discovery for Home Assistant
+        # Device info (shared by all sensors)
+        device_info = {
+            "identifiers": ["bme680_sensor_1"],
+            "name": "BME680 Environmental Sensor",
+            "model": "BME680",
+            "manufacturer": "Bosch"
+        }
+
+        # Configure temperature sensor
+        client.publish(
+            "homeassistant/sensor/bme680_temperature/config",
+            json.dumps({
+                "name": "BME680 Temperature",
+                "state_topic": "bme680/temperature",
+                "unit_of_measurement": "°C",
+                "device_class": "temperature",
+                "unique_id": "bme680_temperature_1",
+                "device": device_info
+            }),
+            retain=True
+        )
+
+        # Configure humidity sensor
+        client.publish(
+            "homeassistant/sensor/bme680_humidity/config",
+            json.dumps({
+                "name": "BME680 Humidity",
+                "state_topic": "bme680/humidity",
+                "unit_of_measurement": "%",
+                "device_class": "humidity",
+                "unique_id": "bme680_humidity_1",
+                "device": device_info
+            }),
+            retain=True
+        )
+
+        # Configure pressure sensor
+        client.publish(
+            "homeassistant/sensor/bme680_pressure/config",
+            json.dumps({
+                "name": "BME680 Pressure",
+                "state_topic": "bme680/pressure",
+                "unit_of_measurement": "hPa",
+                "device_class": "pressure",
+                "unique_id": "bme680_pressure_1",
+                "device": device_info
+            }),
+            retain=True
+        )
+
+        # Configure gas resistance sensor
+        client.publish(
+            "homeassistant/sensor/bme680_gas/config",
+            json.dumps({
+                "name": "BME680 Gas Resistance",
+                "state_topic": "bme680/gas",
+                "unit_of_measurement": "Ω",
+                "icon": "mdi:air-filter",
+                "unique_id": "bme680_gas_1",
+                "device": device_info
+            }),
+            retain=True
+        )
+
+        print("MQTT Discovery messages published")
 
         # Main loop to print sensor readings
         while True:
@@ -104,7 +172,12 @@ def main():
                 "gas": bme680.gas
                 }
                 r.publish("sensor-data", json.dumps(data))
-                client.publish("sensor-data", json.dumps(data))
+
+                # Publish individual sensor values to Home Assistant
+                client.publish("bme680/temperature", str(bme680.temperature))
+                client.publish("bme680/humidity", str(bme680.humidity))
+                client.publish("bme680/pressure", str(bme680.pressure))
+                client.publish("bme680/gas", str(bme680.gas))
                 time.sleep(5)
                 i += 1
 
