@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -12,9 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis"
-	"github.com/gorilla/websocket"
-
+	"github.com/go-redis/redis/v8"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
@@ -27,50 +26,90 @@ type Reading struct {
 	Timestamp   string   `json:"timestamp"`
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+// SSE hub to manage multiple clients
+type SSEHub struct {
+	clients    map[chan string]bool
+	register   chan chan string
+	unregister chan chan string
+	broadcast  chan string
 }
 
-var clients = make(map[*websocket.Conn]bool)
-var broadcast = make(chan string)
-
-func handleConnections(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Handling connection")
-
-	// Attempting to upgrade the connection
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Failed to upgrade connection: ", err)
-		return
+func newSSEHub() *SSEHub {
+	return &SSEHub{
+		clients:    make(map[chan string]bool),
+		register:   make(chan chan string),
+		unregister: make(chan chan string),
+		broadcast:  make(chan string),
 	}
-	fmt.Println("Connection upgraded to WebSocket")
+}
 
-	defer func() {
-		fmt.Println("Closing WebSocket connection")
-		ws.Close()
-		delete(clients, ws)
-	}()
-
-	// Adding client to the clients map
-	clients[ws] = true
-	fmt.Println("Client added. Total clients: ", len(clients))
-
+func (h *SSEHub) run() {
 	for {
 		select {
-		case message := <-broadcast:
-			fmt.Println("Broadcast received: ", message) // Add this fmt
-			for client := range clients {
-				fmt.Println("Sending message to client: ", client.RemoteAddr())
-				err := client.WriteMessage(websocket.TextMessage, []byte(message))
-				if err != nil {
-					fmt.Println("Error sending message to client: ", err)
-					client.Close()
-					delete(clients, client)
-					fmt.Println("Client removed. Total clients: ", len(clients))
+		case client := <-h.register:
+			h.clients[client] = true
+			log.Printf("SSE client connected (total: %d)", len(h.clients))
+		case client := <-h.unregister:
+			if _, ok := h.clients[client]; ok {
+				delete(h.clients, client)
+				close(client)
+				log.Printf("SSE client disconnected (total: %d)", len(h.clients))
+			}
+		case message := <-h.broadcast:
+			for client := range h.clients {
+				select {
+				case client <- message:
+				default:
+					log.Println("Warning: SSE client buffer full, skipping message")
 				}
 			}
-		default:
-			time.Sleep(100 * time.Millisecond) // Prevent blocking
+		}
+	}
+}
+
+var hub = newSSEHub()
+
+func subscribeToRedis(rdb *redis.Client) {
+	ctx := context.Background()
+	pubsub := rdb.Subscribe(ctx, "sensor-data")
+	defer pubsub.Close()
+
+	log.Println("Subscribed to Redis channel: sensor-data")
+
+	for msg := range pubsub.Channel() {
+		hub.broadcast <- msg.Payload
+	}
+}
+
+func sseHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+
+	messageChan := make(chan string, 10)
+	hub.register <- messageChan
+	defer func() {
+		hub.unregister <- messageChan
+	}()
+
+	ctx := r.Context()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case message, ok := <-messageChan:
+			if !ok {
+				return
+			}
+			fmt.Fprintf(w, "data: %s\n\n", message)
+			flusher.Flush()
 		}
 	}
 }
@@ -99,28 +138,23 @@ func main() {
 		log.Fatalf("Could not ping the database: %v", err)
 	}
 
-	fmt.Println("Successfully connected to the database")
-	redisURL := os.Getenv("REDIS_URL")
-	client := redis.NewClient(&redis.Options{
-		Addr: redisURL,
+	log.Println("Connected to PostgreSQL")
+
+	// Connect to Redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_URL"),
 	})
-
-	fmt.Println("Successfully connected to the redis client")
-
-	pubsub := client.Subscribe("sensor-data")
-	_, err = pubsub.Receive()
-	if err != nil {
-		log.Fatalf("Failed to subscribe to channel: %v", err)
+	ctx := context.Background()
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		log.Fatalf("Could not connect to Redis: %v", err)
 	}
+	log.Println("Connected to Redis")
 
-	go func() {
-		for msg := range pubsub.Channel() {
-			fmt.Println("Received message from Redis: ", msg.Payload)
-			broadcast <- msg.Payload
-		}
-	}()
+	// Start the SSE hub and Redis subscriber
+	go hub.run()
+	go subscribeToRedis(rdb)
 
-	http.HandleFunc("/ws", handleConnections)
+	http.HandleFunc("/events", sseHandler)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Check if the file exists in the directory
@@ -265,7 +299,7 @@ func main() {
 		// Query the database
 		rows, err := db.Query(sqlQuery, queryArgs...)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Database query error: %v", err)
 			http.Error(w, "Failed to query database", http.StatusInternalServerError)
 			return
 		}
@@ -385,7 +419,7 @@ func main() {
 	})
 
 	// Start the HTTP server
-	fmt.Println("Starting server on :8080")
+	log.Println("Server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
