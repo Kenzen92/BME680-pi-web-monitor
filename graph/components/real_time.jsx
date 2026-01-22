@@ -10,12 +10,11 @@ import {
 const RealTime = () => {
   const [sensorData, setSensorData] = useState(null);
   const [flash, setFlash] = useState(false);
-  const pi_ip = import.meta.env.VITE_PI_IP_ADDRESS;
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://${pi_ip}:5000/ws`);
+    const eventSource = new EventSource("/events");
 
-    socket.onmessage = (event) => {
+    eventSource.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
       setSensorData(parsedData);
 
@@ -23,12 +22,12 @@ const RealTime = () => {
       setTimeout(() => setFlash(false), 300);
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error);
     };
 
-    return () => socket.close();
-  }, [pi_ip]);
+    return () => eventSource.close();
+  }, []);
 
   const readings = [
     {

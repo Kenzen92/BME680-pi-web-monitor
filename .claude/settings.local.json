@@ -6,7 +6,8 @@
       "Bash(ssh pi:*)",
       "Bash(mcp list:*)",
       "Bash(claude mcp add:*)",
-      "Bash(claude mcp list:*)"
+      "Bash(claude mcp list:*)",
+      "Bash(go get:*)"
     ],
     "deny": [],
     "ask": []
