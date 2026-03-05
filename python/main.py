@@ -37,15 +37,14 @@ def main():
 
     # Create sensor object
     bme680 = None
-    try:
-        while bme680 is None:
-            try:
-                bme680 = Adafruit_BME680_I2C(i2c)
-                print("BME680 sensor initialized successfully")
-            except Exception as e:
-                print(f"Error initializing BME680 sensor: {e}")
-                print("Retrying in 5 seconds...")
-                time.sleep(5)
+    while bme680 is None:
+        try:
+            bme680 = Adafruit_BME680_I2C(i2c)
+            print("BME680 sensor initialized successfully")
+        except Exception as e:
+            print(f"Error initializing BME680 sensor: {e}")
+            print("Retrying in 5 seconds...")
+            time.sleep(5)
     bme680 = Adafruit_BME680_I2C(i2c)
     print("BME680 sensor initialized")
     print(f"Temperature: {bme680.temperature:.2f} C")
