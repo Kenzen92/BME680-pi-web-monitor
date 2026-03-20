@@ -70,14 +70,20 @@ func (h *SSEHub) run() {
 var hub = newSSEHub()
 
 func subscribeToRedis(rdb *redis.Client) {
-	ctx := context.Background()
-	pubsub := rdb.Subscribe(ctx, "sensor-data")
-	defer pubsub.Close()
+	for {
+		ctx := context.Background()
+		pubsub := rdb.Subscribe(ctx, "sensor-data")
 
-	log.Println("Subscribed to Redis channel: sensor-data")
+		log.Println("Subscribed to Redis channel: sensor-data")
 
-	for msg := range pubsub.Channel() {
-		hub.broadcast <- msg.Payload
+		for msg := range pubsub.Channel() {
+			hub.broadcast <- msg.Payload
+		}
+
+		// Channel closed — connection was lost; clean up and reconnect
+		pubsub.Close()
+		log.Println("Redis subscription dropped, reconnecting in 5s...")
+		time.Sleep(5 * time.Second)
 	}
 }
 

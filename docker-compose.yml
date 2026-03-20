@@ -13,6 +13,12 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   redis:
     image: redis:latest
@@ -20,6 +26,12 @@ services:
     ports:
       - "6379:6379"
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   go-app:
     build:
@@ -35,9 +47,11 @@ services:
     ports:
       - "5000:8080"
     depends_on:
-      - postgres-db
-      - redis
-    restart: always # Optional: Restart the container if it stops
+      postgres-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
 
 volumes:
   postgres_data:
