@@ -1,0 +1,25 @@
+[Unit]
+Description=BME680 Sensor Data Collector
+# Start after Docker is running and the network is up
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/BME680-pi-web-monitor
+
+# run_sensor.sh ends with `exec python3 ...` so this PID IS the Python process.
+# systemd will restart it automatically if it exits for any reason.
+ExecStart=/home/pi/BME680-pi-web-monitor/run_sensor.sh
+
+Restart=on-failure
+RestartSec=30s
+
+# Append stdout/stderr to the same log file Python writes to (never overwrites)
+StandardOutput=append:/home/pi/BME680-pi-web-monitor/python/sensor.log
+StandardError=append:/home/pi/BME680-pi-web-monitor/python/sensor.log
+
+[Install]
+WantedBy=multi-user.target
